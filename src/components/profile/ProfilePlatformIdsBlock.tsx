@@ -39,29 +39,27 @@ export function ProfilePlatformIdsBlock({ profile, className = "" }: Props) {
 
   if (items.length === 0) return null;
 
-  const gridLayoutClass =
+  const listLayoutClass =
     items.length === 1
-      ? "grid-cols-1 gap-y-3.5"
-      : "grid-cols-2 gap-x-3 gap-y-4 sm:gap-x-4 md:grid-cols-3 md:gap-x-5 md:gap-y-4";
+      ? "mt-3 flex list-none flex-col items-center gap-y-3.5 p-0 md:grid md:grid-cols-1 md:gap-y-3.5"
+      : "mt-3 flex list-none flex-col items-center gap-y-4 p-0 md:grid md:grid-cols-3 md:gap-x-5 md:gap-y-4";
 
   return (
     <div className={className}>
-      <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#678]">
+      <h2 className="text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#678] md:text-left">
         En consolas y launchers
       </h2>
-      <ul
-        className={`mt-3 grid list-none p-0 text-left ${gridLayoutClass}`}
-      >
+      <ul className={listLayoutClass}>
         {items.map(({ label, platform, value }) => (
           <li
             key={label}
-            className="flex min-w-0 items-center gap-2 text-left sm:gap-2.5"
+            className="flex w-max max-w-full min-w-0 items-center justify-start gap-2 text-left sm:gap-2.5 md:w-full md:max-w-none"
           >
             <span className="sr-only">{label}</span>
             <span className="inline-flex w-6 shrink-0 justify-center sm:w-7">
               <PlatformIdIcon platform={platform} />
             </span>
-            <span className="min-w-0 flex-1 break-all text-left font-mono text-[13px] leading-snug text-[#e6edf3] sm:text-[14px]">
+            <span className="min-w-0 break-all text-left font-mono text-[13px] leading-snug text-[#e6edf3] sm:text-[14px] md:flex-1">
               {value}
             </span>
           </li>

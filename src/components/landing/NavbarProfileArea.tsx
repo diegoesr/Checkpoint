@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { signOut } from "@/app/auth/actions";
 
@@ -78,14 +77,6 @@ export function NavbarProfileArea({ displayName, avatarUrl }: Props) {
           <p className="truncate border-b border-white/10 px-3 py-2 text-[11px] font-medium text-white/80">
             {displayName}
           </p>
-          <Link
-            href="/profile"
-            role="menuitem"
-            className="block px-3 py-2.5 text-sm text-white/95 transition hover:bg-white/5 hover:text-white"
-            onClick={() => setOpen(false)}
-          >
-            Mi perfil
-          </Link>
           <form action={signOut}>
             <button
               type="submit"

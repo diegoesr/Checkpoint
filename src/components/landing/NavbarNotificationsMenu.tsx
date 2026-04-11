@@ -125,7 +125,9 @@ export function NavbarNotificationsMenu({ initialItems }: Props) {
 
       {open ? (
         <div
-          className="absolute right-0 top-full z-[100] mt-2 w-[min(100vw-2rem,20rem)] rounded-xl border border-white/10 bg-[#0d1014]/98 py-2 shadow-2xl shadow-black/60 backdrop-blur-md sm:w-[22rem]"
+          className="z-[100] rounded-xl border border-white/10 bg-[#0d1014]/98 py-2 shadow-2xl shadow-black/60 backdrop-blur-md
+            max-md:fixed max-md:left-1/2 max-md:right-auto max-md:top-[max(4.25rem,calc(env(safe-area-inset-top,0px)+3.75rem))] max-md:mt-0 max-md:w-[min(22rem,calc(100vw-1.5rem))] max-md:-translate-x-1/2
+            md:absolute md:right-0 md:top-full md:mt-2 md:w-[min(100vw-2rem,22rem)]"
           role="menu"
           aria-label="Notificaciones"
         >
