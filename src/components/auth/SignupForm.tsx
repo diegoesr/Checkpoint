@@ -45,7 +45,10 @@ export function SignupForm() {
     const password = String(fd.get("password") ?? "");
 
     const supabase = createClient();
-    const origin = window.location.origin;
+    /** Producción: define NEXT_PUBLIC_SITE_URL en Vercel (https://tu-app.vercel.app). */
+    const origin =
+      process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") ||
+      window.location.origin;
     const { data, error: signError } = await supabase.auth.signUp({
       email,
       password,
