@@ -1,10 +1,22 @@
 import { ProfileInteractiveStats } from "@/components/profile/ProfileInteractiveStats";
 import { ProfilePlatformIdsBlock } from "@/components/profile/ProfilePlatformIdsBlock";
+import { PublicProfileRelationshipActions } from "@/components/profile/PublicProfileRelationshipActions";
 import type { ProfileDashboard } from "@/lib/supabase/profile-dashboard";
 
-type Props = { dash: ProfileDashboard };
+type Props = {
+  dash: ProfileDashboard;
+  profileUserId: string;
+  viewerFollowsProfile: boolean;
+  /** El dueño de este perfil sigue al visitante. */
+  profileFollowsViewer: boolean;
+};
 
-export function PublicProfilePageHeader({ dash }: Props) {
+export function PublicProfilePageHeader({
+  dash,
+  profileUserId,
+  viewerFollowsProfile,
+  profileFollowsViewer,
+}: Props) {
   const displayName =
     dash.profile?.display_name?.trim() || "Jugador";
   const avatar = dash.profile?.avatar_url?.trim() ?? null;
@@ -43,6 +55,12 @@ export function PublicProfilePageHeader({ dash }: Props) {
             {handle ? (
               <p className="mt-1 text-[13px] text-[#9ab]">@{handle}</p>
             ) : null}
+            <PublicProfileRelationshipActions
+              profileUserId={profileUserId}
+              displayLabel={displayName}
+              viewerFollowsProfile={viewerFollowsProfile}
+              profileFollowsViewer={profileFollowsViewer}
+            />
             {dash.profile?.bio ? (
               <p className="mt-3 text-[15px] italic leading-relaxed text-[#9ab]">
                 {dash.profile.bio}

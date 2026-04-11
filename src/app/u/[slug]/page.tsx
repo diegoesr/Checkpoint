@@ -44,6 +44,25 @@ export default async function PublicUserProfilePage({ params }: Props) {
   }
 
   const dash = await getProfileDashboard(profileUserId, supabase);
+
+  const [{ data: followRow }, { data: reverseFollowRow }] =
+    await Promise.all([
+      supabase
+        .from("follows")
+        .select("follower_id")
+        .eq("follower_id", user.id)
+        .eq("following_id", profileUserId)
+        .maybeSingle(),
+      supabase
+        .from("follows")
+        .select("follower_id")
+        .eq("follower_id", profileUserId)
+        .eq("following_id", user.id)
+        .maybeSingle(),
+    ]);
+  const viewerFollowsProfile = Boolean(followRow);
+  const profileFollowsViewer = Boolean(reverseFollowRow);
+
   const reviewsAllHref = `${publicProfilePath({
     id: profileUserId,
     username: dash.profile?.username ?? null,
@@ -71,7 +90,12 @@ export default async function PublicUserProfilePage({ params }: Props) {
             ← Mi perfil
           </Link>
         </p>
-        <PublicProfilePageHeader dash={dash} />
+        <PublicProfilePageHeader
+          dash={dash}
+          profileUserId={profileUserId}
+          viewerFollowsProfile={viewerFollowsProfile}
+          profileFollowsViewer={profileFollowsViewer}
+        />
 
         <div className="mt-8 lg:grid lg:grid-cols-[1fr_280px] lg:gap-10">
           <div className="min-w-0 space-y-10">

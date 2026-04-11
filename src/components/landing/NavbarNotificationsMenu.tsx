@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { followUserAction } from "@/app/friends/actions";
 import { markNotificationsSeenAction } from "@/app/profile/actions";
 import { formatRelativeTimeShort } from "@/lib/profile-display";
 import { publicProfilePath } from "@/lib/public-profile";
@@ -32,6 +33,8 @@ function actorLabel(a: NavbarNotification["actor"]): string {
 
 export function NavbarNotificationsMenu({ initialItems }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [followingBackId, setFollowingBackId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   /** Oculta el badge al cerrar antes de que termine el servidor + refresh. */
   const [badgeSuppressed, setBadgeSuppressed] = useState(false);
@@ -143,8 +146,8 @@ export function NavbarNotificationsMenu({ initialItems }: Props) {
                 No hay notificaciones nuevas.
               </p>
               <p className="mt-2 text-xs text-white/40">
-                Cuando alguien te dé like en una reseña o te siga, aparecerán
-                aquí hasta que cierres este panel.
+                Cuando alguien te dé like en una reseña o te siga, verás las
+                novedades aquí hasta que cierres el panel.
               </p>
             </div>
           ) : (
@@ -196,14 +199,37 @@ export function NavbarNotificationsMenu({ initialItems }: Props) {
                           >
                             {actorLabel(item.actor)}
                           </Link>
-                          <span className="text-white/60">
-                            {" "}
-                            empezó a seguirte
-                          </span>
+                          <span className="text-white/60"> te siguió</span>
                         </p>
                         <p className="mt-1 text-[11px] tabular-nums text-white/35">
                           {rel}
                         </p>
+                        {item.canFollowBack ? (
+                          <button
+                            type="button"
+                            disabled={followingBackId === item.actor.id}
+                            className="mt-2.5 w-full touch-manipulation rounded-lg border border-emerald-500/40 bg-emerald-600/20 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-100 transition hover:bg-emerald-600/35 disabled:opacity-50"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setFollowingBackId(item.actor.id);
+                              const res = await followUserAction(
+                                item.actor.id,
+                                pathname,
+                              );
+                              setFollowingBackId(null);
+                              if (!res.ok) {
+                                alert(res.error);
+                                return;
+                              }
+                              router.refresh();
+                            }}
+                          >
+                            {followingBackId === item.actor.id
+                              ? "Siguiendo…"
+                              : "Seguir también"}
+                          </button>
+                        ) : null}
                       </div>
                     )}
                   </li>

@@ -42,10 +42,25 @@ export default async function PublicUserReviewsPage({ params, searchParams }: Pr
     redirect("/profile/reviews");
   }
 
-  const [dash, reviewsPage] = await Promise.all([
-    getProfileDashboard(profileUserId, supabase),
-    getGameReviewsPaged(profileUserId, page, supabase),
-  ]);
+  const [dash, reviewsPage, followResult, reverseFollowResult] =
+    await Promise.all([
+      getProfileDashboard(profileUserId, supabase),
+      getGameReviewsPaged(profileUserId, page, supabase),
+      supabase
+        .from("follows")
+        .select("follower_id")
+        .eq("follower_id", user.id)
+        .eq("following_id", profileUserId)
+        .maybeSingle(),
+      supabase
+        .from("follows")
+        .select("follower_id")
+        .eq("follower_id", profileUserId)
+        .eq("following_id", user.id)
+        .maybeSingle(),
+    ]);
+  const viewerFollowsProfile = Boolean(followResult.data);
+  const profileFollowsViewer = Boolean(reverseFollowResult.data);
   const likeMeta = await getReviewLikesMeta(
     reviewsPage.reviews.map((r) => r.id),
     user.id,
@@ -77,7 +92,12 @@ export default async function PublicUserReviewsPage({ params, searchParams }: Pr
             ← Mi perfil
           </Link>
         </p>
-        <PublicProfilePageHeader dash={dash} />
+        <PublicProfilePageHeader
+          dash={dash}
+          profileUserId={profileUserId}
+          viewerFollowsProfile={viewerFollowsProfile}
+          profileFollowsViewer={profileFollowsViewer}
+        />
 
         <div className="mt-8">
           <p className="mb-6 hidden text-[11px] font-medium uppercase tracking-[0.14em] text-[#678] md:block">

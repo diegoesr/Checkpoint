@@ -17,6 +17,8 @@ export type NavbarNotification =
       kind: "new_follower";
       at: string;
       actor: FriendProfile;
+      /** False si ya sigues a quien te siguió (no mostrar follow back). */
+      canFollowBack: boolean;
     };
 
 async function profilesByIds(
@@ -183,6 +185,23 @@ export async function getNavbarNotifications(
   const actorIds = top.map((t) => t.userId);
   const profileMap = await profilesByIds(supabase, actorIds);
 
+  const newFollowerActorIds = [
+    ...new Set(
+      top.filter((t) => t.kind === "new_follower").map((t) => t.userId),
+    ),
+  ];
+  let iFollowThem = new Set<string>();
+  if (newFollowerActorIds.length > 0) {
+    const { data: myFollows } = await supabase
+      .from("follows")
+      .select("following_id")
+      .eq("follower_id", userId)
+      .in("following_id", newFollowerActorIds);
+    iFollowThem = new Set(
+      (myFollows ?? []).map((r) => r.following_id as string),
+    );
+  }
+
   const out: NavbarNotification[] = [];
   for (const t of top) {
     const actor = profileMap.get(t.userId);
@@ -205,6 +224,7 @@ export async function getNavbarNotifications(
         kind: "new_follower",
         at: t.at,
         actor,
+        canFollowBack: !iFollowThem.has(actor.id),
       });
     }
   }

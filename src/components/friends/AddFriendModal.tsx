@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -46,6 +46,7 @@ type Props = {
 
 export function AddFriendModal({ open, onClose, onFollowed }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ProfileRow[]>([]);
@@ -89,7 +90,7 @@ export function AddFriendModal({ open, onClose, onFollowed }: Props) {
 
   async function handleFollow(id: string) {
     setFollowPending(id);
-    const res = await followUserAction(id);
+    const res = await followUserAction(id, pathname);
     setFollowPending(null);
     if (!res.ok) {
       setSearchError(res.error);
@@ -118,10 +119,11 @@ export function AddFriendModal({ open, onClose, onFollowed }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="add-friend-title" className="text-xl font-semibold text-white">
-          Agregar amigo
+          Buscar y seguir
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-400">
-          Busca por nombre de usuario (como aparece en su perfil).
+          Igual que en Instagram: al seguir a alguien le llega una notificación y puede
+          devolverte el seguimiento desde el panel de notificaciones o tu perfil.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-stretch">
           <input

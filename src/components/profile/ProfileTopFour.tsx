@@ -87,13 +87,13 @@ export function ProfileTopFour({ initial, readOnly = false }: Props) {
                 )}
                 {!readOnly ? (
                   <>
-                    <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-16 bg-linear-to-b from-black/55 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:h-28" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-16 bg-linear-to-b from-black/55 to-transparent opacity-0 transition-opacity duration-300 max-lg:opacity-40 lg:h-28 lg:group-hover:opacity-100" />
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] bg-linear-to-t from-black/90 to-transparent p-2 pt-8">
                       <p className="line-clamp-2 text-center text-[11px] font-medium text-white drop-shadow-sm">
                         {g?.game_name ?? `Espacio ${slot}`}
                       </p>
                     </div>
-                    <div className="absolute right-1 top-1 z-20 flex translate-y-0 flex-col gap-1 opacity-0 transition-all duration-300 group-hover:opacity-100 sm:right-2 sm:top-2 md:translate-y-1 md:group-hover:translate-y-0">
+                    <div className="absolute right-1 top-1 z-20 flex translate-y-0 flex-col gap-1 opacity-100 transition-all duration-300 sm:right-2 sm:top-2 lg:translate-y-1 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100">
                       {g ? (
                         <button
                           type="button"

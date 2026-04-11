@@ -3,6 +3,22 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+/** Ruta actual del navegador (p. ej. `/u/slug`) para forzar RSC tras mutar `follows`. */
+function revalidateAfterFollowChange(browserPath?: string | null) {
+  revalidatePath("/", "layout");
+  const p = browserPath?.trim();
+  if (
+    p &&
+    p.startsWith("/") &&
+    !p.includes("..") &&
+    p.length <= 256 &&
+    (p === "/profile" || p.startsWith("/profile/") || p.startsWith("/u/"))
+  ) {
+    revalidatePath(p);
+  }
+  revalidatePath("/profile", "layout");
+}
+
 export type ProfileRow = {
   id: string;
   display_name: string | null;
@@ -74,6 +90,7 @@ export async function searchProfilesToFollow(
 
 export async function followUserAction(
   targetUserId: string,
+  browserPath?: string | null,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await createClient();
   const {
@@ -101,6 +118,75 @@ export async function followUserAction(
     return { ok: false, error: error.message };
   }
 
-  revalidatePath("/", "layout");
+  revalidateAfterFollowChange(browserPath);
+  return { ok: true };
+}
+
+export async function unfollowUserAction(
+  targetUserId: string,
+  browserPath?: string | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+  if (user.id === targetUserId) {
+    return { ok: false, error: "Operación no válida" };
+  }
+
+  const { error } = await supabase
+    .from("follows")
+    .delete()
+    .eq("follower_id", user.id)
+    .eq("following_id", targetUserId);
+
+  if (error) {
+    if (error.code === "42P01" || error.message.includes("relation")) {
+      return {
+        ok: false,
+        error:
+          "Falta crear tablas en Supabase. Ejecuta supabase/migrations/001_profiles_follows.sql",
+      };
+    }
+    return { ok: false, error: error.message };
+  }
+
+  revalidateAfterFollowChange(browserPath);
+  return { ok: true };
+}
+
+/** Quitar a `followerId` de la lista de personas que te siguen (no deja de seguir tú a nadie). */
+export async function removeFollowerAction(
+  followerId: string,
+  browserPath?: string | null,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "No autenticado" };
+  if (user.id === followerId) {
+    return { ok: false, error: "Operación no válida" };
+  }
+
+  const { error } = await supabase
+    .from("follows")
+    .delete()
+    .eq("follower_id", followerId)
+    .eq("following_id", user.id);
+
+  if (error) {
+    if (error.code === "42P01" || error.message.includes("relation")) {
+      return {
+        ok: false,
+        error:
+          "Falta crear tablas en Supabase. Ejecuta supabase/migrations/001_profiles_follows.sql",
+      };
+    }
+    return { ok: false, error: error.message };
+  }
+
+  revalidateAfterFollowChange(browserPath);
   return { ok: true };
 }
