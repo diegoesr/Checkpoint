@@ -1,14 +1,16 @@
 # Checkpoint
 
+Repositorio: [github.com/diegoesr/Checkpoint](https://github.com/diegoesr/Checkpoint) · Demo: [checkpoint-omega.vercel.app](https://checkpoint-omega.vercel.app)
+
 [![Deploy](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/) [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ECF8E?logo=supabase)](https://supabase.com/)
 
 Red social para **videojuegos**: registra lo que juegas, reseñas con medias estrellas, listas tipo Letterboxd, diario de actividad, backlog, amigos y noticias gaming. Inspiración visual tipo Letterboxd, orientada a **gaming**.
 
 ---
 
-## Qué hace el sitio
+## ¿Qué hace el sitio?
 
-Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros jugadores**, **guardar juegos** (RAWG), **publicar reseñas y actividades**, **organizar listas personalizadas** y **ver noticias** agregadas por RSS. El nombre en la UI es **Checkpoint** (el repositorio puede llamarse distinto en GitHub).
+Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros jugadores**, **guardar juegos** (RAWG), **publicar reseñas y actividades**, **organizar listas personalizadas** y **ver noticias** agregadas por RSS. El nombre del producto en la interfaz es **Checkpoint**.
 
 ---
 
@@ -30,7 +32,7 @@ Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros
 
 ---
 
-## Tecnologías — Frontend
+## Frontend
 
 | Tecnología | Uso |
 |------------|-----|
@@ -47,7 +49,7 @@ Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros
 
 ---
 
-## Tecnologías — Backend
+## Backend
 
 En este proyecto el “backend” **no es un servidor aparte**: vive dentro de **Next.js**.
 
@@ -133,7 +135,7 @@ Flujo resumido: el usuario interactúa con páginas React; las mutaciones van a 
 ## Estructura del proyecto
 
 ```
-letterboxd/
+Checkpoint/
 ├── public/                 # Estáticos (iconos, imágenes)
 ├── src/
 │   ├── app/                # App Router: páginas, layouts, route handlers, auth callbacks
@@ -173,23 +175,19 @@ letterboxd/
 
 ## Capturas de pantalla
 
-Sustituye las rutas por tus propias imágenes (puedes guardarlas en `docs/screenshots/` y subirlas al repo).
+### Home
+![Home](docs/screenshots/home-guess.png)
+*Interfaz de inicio en modo invitado*
 
-| Vista | Descripción |
-|-------|-------------|
-| **Home** | Hero, carrusel RAWG, bloque de noticias. |
-| **Perfil** | Avatar, stats, top 4, enlaces y plataformas. |
-| **Reseñas / Diario** | Lista de reseñas o línea de tiempo de actividad. |
-| **Listas** | Índice y detalle con collage. |
-| **Móvil** | Navbar inferior y flujo táctil. |
+![Home](docs/screenshots/home-user.png)
+*Interfaz de inicio en modo usuario*
 
-Ejemplo de referencia en Markdown (descomenta cuando añadas archivos):
+### Inicio de sesión
+![Login](docs/screenshots/login-user.png)
+*Interfaz de inicio de sesión*
 
-```markdown
-| Home | Perfil |
-|------|--------|
-| ![Home](docs/screenshots/home.png) | ![Perfil](docs/screenshots/profile.png) |
-```
+![Login](docs/screenshots/create.png)
+*Interfaz de crear cuenta*
 
 ---
 
@@ -214,6 +212,3 @@ Proyecto pensado para **Vercel** (u otro host Node). Define las variables de ent
 
 ---
 
-## Licencia
-
-Privado / según definas en el repositorio.
