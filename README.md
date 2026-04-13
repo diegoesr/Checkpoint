@@ -208,13 +208,28 @@ Checkpoint/
 
 ### Diseño responsive
 
-| Inicio | Perfil |
-|--------|--------|
-| <img src="docs/screenshots/resp1.png" alt="Inicio responsive" width="240" /> | <img src="docs/screenshots/resp2.png" alt="Perfil responsive" width="240" /> |
+<div align="center">
 
-| Juegos | Reseñas |
-|--------|---------|
-| <img src="docs/screenshots/resp3.png" alt="Juegos responsive" width="240" /> | <img src="docs/screenshots/resp4.png" alt="Reseñas responsive" width="240" /> |
+<table>
+  <tr>
+    <th>Inicio</th>
+    <th>Perfil</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/resp1.png" alt="Inicio responsive" width="240" /></td>
+    <td align="center"><img src="docs/screenshots/resp2.png" alt="Perfil responsive" width="240" /></td>
+  </tr>
+  <tr>
+    <th>Juegos</th>
+    <th>Reseñas</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/resp3.png" alt="Juegos responsive" width="240" /></td>
+    <td align="center"><img src="docs/screenshots/resp4.png" alt="Reseñas responsive" width="240" /></td>
+  </tr>
+</table>
+
+</div>
 
 ---
 
