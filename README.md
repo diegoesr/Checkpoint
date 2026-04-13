@@ -207,17 +207,14 @@ Checkpoint/
 ![News](docs/screenshots/news.png)
 
 ### Diseño responsive
-*Inicio*
-![Home](docs/screenshots/resp1.png)
 
-*Perfil*
-![Profile](docs/screenshots/resp2.png)
+| Inicio | Perfil |
+|--------|--------|
+| <img src="docs/screenshots/resp1.png" alt="Inicio responsive" width="240" /> | <img src="docs/screenshots/resp2.png" alt="Perfil responsive" width="240" /> |
 
-*Juegos*
-![Games](docs/screenshots/resp3.png)
-
-*Reseñas*
-![Reviews](docs/screenshots/resp4.png)
+| Juegos | Reseñas |
+|--------|---------|
+| <img src="docs/screenshots/resp3.png" alt="Juegos responsive" width="240" /> | <img src="docs/screenshots/resp4.png" alt="Reseñas responsive" width="240" /> |
 
 ---
 
