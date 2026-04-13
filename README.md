@@ -176,18 +176,48 @@ Checkpoint/
 ## Capturas de pantalla
 
 ### Home
-![Home](docs/screenshots/home-guess.png)
 *Interfaz de inicio en modo invitado*
+![Home](docs/screenshots/home-guess.png)
 
-![Home](docs/screenshots/home-user.png)
 *Interfaz de inicio en modo usuario*
+![Home](docs/screenshots/home-user.png)
 
 ### Inicio de sesión
-![Login](docs/screenshots/login-user.png)
 *Interfaz de inicio de sesión*
+![Login](docs/screenshots/login-user.png)
 
-![Login](docs/screenshots/create.png)
 *Interfaz de crear cuenta*
+![Login](docs/screenshots/create.png)
+
+### Perfil de usuario
+*Perfil del usuario*
+![Profile](docs/screenshots/profile.png)
+![Profile](docs/screenshots/profile2.png)
+
+### Listas
+*Listas del usuario*
+![List](docs/screenshots/list.png)
+
+### Juegos en tendencia
+*Juegos en tendencia*
+![Trending](docs/screenshots/trending.png)
+
+### Noticias
+*Noticias del gaming*
+![News](docs/screenshots/news.png)
+
+### Diseño responsive
+*Inicio*
+![Home](docs/screenshots/resp1.png)
+
+*Perfil*
+![Profile](docs/screenshots/resp2.png)
+
+*Juegos*
+![Games](docs/screenshots/resp3.png)
+
+*Reseñas*
+![Reviews](docs/screenshots/resp4.png)
 
 ---
 
