@@ -17,40 +17,81 @@ async function touchListUpdated(supabase: Awaited<ReturnType<typeof createClient
     .eq("id", listId);
 }
 
-/** Crea una fila mínima para abrir el editor (título editable en pantalla). */
-export async function createBlankListForUser(): Promise<
-  { ok: true; id: string } | { ok: false; error: string }
-> {
+/**
+ * Crea la lista y la primera entrada en una sola operación.
+ * No se usa fila vacía: la lista solo existe cuando hay al menos un juego.
+ */
+export async function createUserListWithFirstGameAction(
+  rawgId: number,
+  name: string,
+  description: string | null,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const trimmedName = name.trim();
+  if (trimmedName.length < 1 || trimmedName.length > 120) {
+    return { ok: false, error: "El título debe tener entre 1 y 120 caracteres." };
+  }
+  if (description && description.length > 500) {
+    return { ok: false, error: "La descripción admite como máximo 500 caracteres." };
+  }
+
+  const game = await getGameById(rawgId);
+  if (!game) return { ok: false, error: "Juego no encontrado en RAWG." };
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "No autenticado" };
 
-  const { data: row, error } = await supabase
+  const now = new Date().toISOString();
+  const { data: row, error: insertErr } = await supabase
     .from("user_lists")
     .insert({
       user_id: user.id,
-      name: "Nueva lista",
-      description: null,
-      updated_at: new Date().toISOString(),
+      name: trimmedName,
+      description: description && description.trim().length > 0 ? description.trim() : null,
+      updated_at: now,
     })
     .select("id")
     .single();
 
-  if (error) {
-    if (error.message.includes("relation") || error.code === "42P01") {
+  if (insertErr) {
+    if (insertErr.message.includes("relation") || insertErr.code === "42P01") {
       return {
         ok: false,
         error:
           "Ejecuta en Supabase la migración 004 (user_lists) y la 015 (entradas y descripción).",
       };
     }
-    return { ok: false, error: error.message };
+    return { ok: false, error: insertErr.message };
   }
 
-  const id = row?.id as string;
-  return { ok: true, id };
+  const listId = row?.id as string;
+
+  const { error: entryErr } = await supabase.from("user_list_entries").insert({
+    list_id: listId,
+    rawg_id: game.id,
+    game_name: game.name,
+    background_image: game.background_image ?? null,
+    position: 1,
+  });
+
+  if (entryErr) {
+    await supabase.from("user_lists").delete().eq("id", listId).eq("user_id", user.id);
+    if (entryErr.code === "23505") {
+      return { ok: false, error: "Ese juego ya está en la lista." };
+    }
+    if (entryErr.message.includes("relation") || entryErr.code === "42P01") {
+      return {
+        ok: false,
+        error: "Ejecuta la migración 015 en Supabase (user_list_entries).",
+      };
+    }
+    return { ok: false, error: entryErr.message };
+  }
+
+  revalidateLists(listId);
+  return { ok: true, id: listId };
 }
 
 export async function updateUserListAction(

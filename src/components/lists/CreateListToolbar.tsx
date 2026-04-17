@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** Crea una lista borrador y redirige al editor unificado en `/lists/[id]`. */
+/** Abre el flujo de nueva lista (sin guardar hasta el primer juego). */
 export function CreateListToolbar() {
   return (
     <Link

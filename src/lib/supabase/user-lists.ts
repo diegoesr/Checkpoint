@@ -72,10 +72,13 @@ export async function getUserListsWithPreviews(
     if (url && bucket.images.length < 5) bucket.images.push(url);
   }
 
-  return typedLists.map((l) => {
+  const withPreviews = typedLists.map((l) => {
     const b = byList.get(l.id) ?? { images: [], count: 0 };
     return { ...l, game_count: b.count, preview_images: b.images };
   });
+
+  /** No mostrar listas sin juegos (p. ej. borradores abandonados o vacías). */
+  return withPreviews.filter((l) => l.game_count > 0);
 }
 
 /** Lista + entradas por id (lectura; RLS permite select a usuarios autenticados). */
