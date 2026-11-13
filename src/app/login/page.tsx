@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import Balatro from "@/components/backgrounds/Balatro";
+import { AuthBackground } from "@/components/auth/AuthBackground";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Navbar } from "@/components/landing/Navbar";
 import { createClient } from "@/lib/supabase/server";
@@ -14,19 +14,7 @@ export default async function LoginPage() {
 
   return (
     <div className="relative min-h-full text-slate-100">
-      <div
-        className="fixed inset-0 z-0 h-dvh min-h-dvh w-full bg-[#162325]"
-        aria-hidden
-      >
-        <Balatro
-          isRotate={false}
-          mouseInteraction={false}
-          pixelFilter={2000}
-          color1="#DE443B"
-          color2="#006BB4"
-          color3="#162325"
-        />
-      </div>
+      <AuthBackground />
 
       <Navbar />
       <main className="relative z-10 mx-auto flex max-w-md flex-col px-6 pb-24 pt-28 sm:pt-32">

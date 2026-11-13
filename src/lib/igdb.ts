@@ -17,6 +17,11 @@ const IGDB_TIMEOUT_MS = 6000;
 /** IGDB permite 4 peticiones/s y 8 abiertas a la vez; nos quedamos en 4 simultáneas. */
 const MAX_CONCURRENT = 4;
 const TOP_GAMES_LIMIT = 10;
+/**
+ * Filtro de calidad para listados públicos: fuera el tema "Erotic" (id 42) y
+ * títulos casi sin valoraciones (juegos basura que se cuelan por visitas).
+ */
+const SAFE_LISTING_FILTER = "themes != (42) & total_rating_count >= 5";
 
 // ---------------------------------------------------------------------------
 // Tipos públicos (normalizados para la UI)
@@ -178,7 +183,8 @@ const LIST_FIELDS =
 
 function toHit(g: IgdbGame): GameSearchHit {
   const coverId = g.cover?.image_id;
-  const heroId = g.artworks?.[0]?.image_id ?? g.screenshots?.[0]?.image_id;
+  // Capturas antes que artworks: algunos artworks de IGDB son solo el logo sobre fondo negro.
+  const heroId = g.screenshots?.[0]?.image_id ?? g.artworks?.[0]?.image_id;
   const rating = g.aggregated_rating ?? g.total_rating;
   return {
     id: g.id,
@@ -209,10 +215,11 @@ function apicalypseString(value: string): string {
 
 const fetchTrending = unstable_cache(
   async (limit: number): Promise<TrendingGame[]> => {
-    // Popularidad "visitas en IGDB" (popularity_type = 1).
+    // Popularidad "jugando ahora" (popularity_type = 3). Se piden de más porque
+    // el filtro de calidad descarta algunos.
     const prims = await igdbQuery<{ game_id: number; value: number }[]>(
       "popularity_primitives",
-      `fields game_id,value; where popularity_type = 1; sort value desc; limit ${limit * 2};`,
+      `fields game_id,value; where popularity_type = 3; sort value desc; limit ${Math.min(limit * 4, 200)};`,
     );
     const ids = [...new Set(prims.map((p) => p.game_id))];
 
@@ -220,7 +227,7 @@ const fetchTrending = unstable_cache(
     if (ids.length > 0) {
       games = await igdbQuery<IgdbGame[]>(
         "games",
-        `${LIST_FIELDS} where id = (${ids.join(",")}) & cover != null; limit ${ids.length};`,
+        `${LIST_FIELDS} where id = (${ids.join(",")}) & cover != null & ${SAFE_LISTING_FILTER}; limit ${ids.length};`,
       );
       const order = new Map(ids.map((id, i) => [id, i]));
       games.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
@@ -232,13 +239,13 @@ const fetchTrending = unstable_cache(
       const sixMonthsAgo = now - 182 * 24 * 3600;
       games = await igdbQuery<IgdbGame[]>(
         "games",
-        `${LIST_FIELDS} where first_release_date > ${sixMonthsAgo} & first_release_date < ${now} & cover != null & version_parent = null; sort total_rating_count desc; limit ${limit};`,
+        `${LIST_FIELDS} where first_release_date > ${sixMonthsAgo} & first_release_date < ${now} & cover != null & version_parent = null & ${SAFE_LISTING_FILTER}; sort total_rating_count desc; limit ${limit};`,
       );
     }
 
     return games.slice(0, limit).map(toHit);
   },
-  ["igdb-trending-v1"],
+  ["igdb-trending-v3"],
   { revalidate: 900 },
 );
 
@@ -250,7 +257,7 @@ const fetchSearch = unstable_cache(
     );
     return games.map(toHit);
   },
-  ["igdb-search-v1"],
+  ["igdb-search-v2"],
   { revalidate: 300 },
 );
 
@@ -268,8 +275,33 @@ const fetchGame = unstable_cache(
       url: g.url ?? null,
     };
   },
-  ["igdb-game-v1"],
+  ["igdb-game-v2"],
   { revalidate: 3600 },
+);
+
+const fetchGameMedia = unstable_cache(
+  async (gameId: number, size: string): Promise<string[]> => {
+    const [g] = await igdbQuery<IgdbGame[]>(
+      "games",
+      `fields artworks.image_id,screenshots.image_id; where id = ${gameId}; limit 1;`,
+    );
+    if (!g) return [];
+    // Intercala artworks (arte promocional) y capturas para que las variantes
+    // del arte principal no queden juntas.
+    const arts = g.artworks ?? [];
+    const shots = g.screenshots ?? [];
+    const mixed: IgdbImage[] = [];
+    for (let i = 0; i < Math.max(arts.length, shots.length); i++) {
+      if (arts[i]) mixed.push(arts[i]);
+      if (shots[i]) mixed.push(shots[i]);
+    }
+    return mixed
+      .map((img) => img.image_id)
+      .filter((id): id is string => Boolean(id))
+      .map((id) => igdbImageUrl(id, size));
+  },
+  ["igdb-game-media-v2"],
+  { revalidate: 86400 },
 );
 
 // ---------------------------------------------------------------------------
@@ -331,6 +363,20 @@ export async function searchGames(
   } catch (err) {
     console.error("[igdb] búsqueda:", err);
     return null;
+  }
+}
+
+/**
+ * Artworks y capturas oficiales de un juego (URLs de IGDB).
+ * `size`: tamaño de imagen de IGDB (p. ej. "720p", "1080p", "screenshot_big").
+ */
+export async function getGameMedia(gameId: number, size = "720p"): Promise<string[]> {
+  if (!isIgdbConfigured() || !Number.isInteger(gameId) || gameId <= 0) return [];
+  try {
+    return await fetchGameMedia(gameId, size);
+  } catch (err) {
+    console.error(`[igdb] media ${gameId}:`, err);
+    return [];
   }
 }
 

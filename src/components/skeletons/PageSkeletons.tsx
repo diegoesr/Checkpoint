@@ -261,7 +261,7 @@ export function FormPageSkeleton({ mainClassName }: { mainClassName?: string }) 
 /** Login / registro: tarjeta centrada. */
 export function AuthSkeleton() {
   return (
-    <div className="relative min-h-full bg-[#162325] font-sans text-white">
+    <div className="relative min-h-full bg-[#0d1014] font-sans text-white">
       <div
         aria-busy="true"
         className="flex min-h-dvh items-center justify-center px-4"

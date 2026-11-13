@@ -15,7 +15,7 @@ export default async function GamesPage() {
         <div className="max-w-2xl">
           <h1 className="text-3xl font-semibold tracking-tight">Top 10 en tendencia</h1>
           <p className="mt-3 text-sm leading-relaxed text-[#9ab]">
-            Los diez títulos más visitados ahora mismo en IGDB.
+            Los diez juegos que más gente está jugando ahora mismo, según IGDB.
           </p>
           <GamesSearchBar />
         </div>

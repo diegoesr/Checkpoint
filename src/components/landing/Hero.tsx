@@ -1,18 +1,22 @@
 import Link from "next/link";
-import EvilEye from "@/components/backgrounds/EvilEye";
-import TextType from "@/components/text/TextType";
+import Galaxy from "@/components/backgrounds/Galaxy";
+import { HeroHeadline } from "@/components/landing/HeroHeadline";
 
-const evilEyeProps = {
-  eyeColor: "#FF6F37",
-  intensity: 1.5,
-  pupilSize: 0.6,
-  irisWidth: 0.25,
-  glowIntensity: 0.35,
-  scale: 0.8,
-  noiseScale: 1,
-  pupilFollow: 1,
-  flameSpeed: 1,
-  backgroundColor: "#060010",
+const galaxyProps = {
+  density: 1,
+  glowIntensity: 0.3,
+  saturation: 0,
+  hueShift: 140,
+  twinkleIntensity: 0.3,
+  rotationSpeed: 0.1,
+  starSpeed: 0.5,
+  speed: 1,
+  mouseRepulsion: true,
+  repulsionStrength: 2,
+  transparent: true,
+  // Resolución 1x: el shader es costoso y a 2x (retina) dibuja 4 veces más píxeles
+  // sin diferencia visible en estrellas difuminadas.
+  dpr: 1,
 } as const;
 
 type HeroProps = {
@@ -32,7 +36,7 @@ export function Hero({
   return (
     <section className="relative min-h-[85vh] w-full overflow-hidden bg-[#060010]">
       <div className="absolute inset-0 z-0">
-        <EvilEye {...evilEyeProps} />
+        <Galaxy {...galaxyProps} />
       </div>
 
       <div
@@ -43,22 +47,7 @@ export function Hero({
       <div
         className={`relative z-10 mx-auto flex min-h-[85vh] max-w-4xl flex-col items-center justify-center px-6 pb-32 text-center sm:px-8 sm:pb-40 ${contentPt}`}
       >
-        <TextType
-          as="h1"
-          text={[
-            "Lleva el control de tus juegos",
-            "Prepara tu siguiente aventura",
-            "Comparte lo mejor que has jugado",
-          ]}
-          typingSpeed={75}
-          pauseDuration={1500}
-          showCursor
-          cursorCharacter="_"
-          deletingSpeed={50}
-          cursorBlinkDuration={0.5}
-          loop
-          className="mx-auto block w-full max-w-4xl text-center text-[1.65rem] font-semibold leading-snug tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.75)] sm:text-3xl md:text-4xl lg:text-[2.75rem] lg:leading-tight"
-        />
+        <HeroHeadline />
 
         {showSignupCta ? (
           <Link
@@ -68,12 +57,6 @@ export function Hero({
             ¡Empieza ya!
           </Link>
         ) : null}
-
-        <p
-          className={`max-w-md text-sm text-white/70 drop-shadow-md ${showSignupCta ? "mt-6" : "mt-10"}`}
-        >
-          La red social para quienes viven cada partida.
-        </p>
       </div>
     </section>
   );
