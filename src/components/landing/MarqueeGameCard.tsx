@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { HomeMarqueeGame } from "@/lib/rawg";
+import type { HomeMarqueeGame } from "@/lib/igdb";
 
 type Props = { game: HomeMarqueeGame };
 

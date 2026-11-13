@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getProfileStatGamesGridAction } from "@/app/profile/actions";
 import { HalfStarRatingDisplay } from "@/components/profile/HalfStarRatingDisplay";
 import type { ProfileStatGameGridItem } from "@/lib/supabase/profile-dashboard";
-import { RAWG_COVER_QUALITY } from "@/lib/rawg-image";
+import { GAME_COVER_QUALITY } from "@/lib/game-image";
 
 type Stat = { label: string; value: number };
 
@@ -205,9 +205,9 @@ export function ProfileInteractiveStats({
                   "
                 >
                   {items.map((g) => (
-                    <li key={`${sheet}-${g.rawg_id}`} className="min-w-0">
+                    <li key={`${sheet}-${g.igdb_id}`} className="min-w-0">
                       <Link
-                        href={`/games/${g.rawg_id}`}
+                        href={`/games/${g.igdb_id}`}
                         className="group/card block min-w-0"
                         onClick={close}
                       >
@@ -219,7 +219,7 @@ export function ProfileInteractiveStats({
                               fill
                               className="object-cover transition-transform duration-200 group-hover/card:scale-[1.03]"
                               sizes={GRID_SIZES}
-                              quality={RAWG_COVER_QUALITY}
+                              quality={GAME_COVER_QUALITY}
                             />
                           ) : (
                             <span className="flex size-full items-center justify-center px-0.5 text-center text-[8px] leading-tight text-[#567] lg:text-[9px]">

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { addGameToBacklogAction } from "@/app/profile/actions";
-import { RawgSearchModal, type RawgGamePick } from "@/components/profile/RawgSearchModal";
+import { GameSearchModal, type GamePick } from "@/components/profile/GameSearchModal";
 
 export function ProfileBacklogBar() {
   const router = useRouter();
@@ -11,7 +11,7 @@ export function ProfileBacklogBar() {
   const [pending, setPending] = useState(false);
 
   const onSelect = useCallback(
-    async (game: RawgGamePick) => {
+    async (game: GamePick) => {
       setPending(true);
       const res = await addGameToBacklogAction(game.id);
       setPending(false);
@@ -43,7 +43,7 @@ export function ProfileBacklogBar() {
           </button>
         </div>
       </div>
-      <RawgSearchModal
+      <GameSearchModal
         open={open}
         title="Añadir al backlog"
         onClose={() => setOpen(false)}

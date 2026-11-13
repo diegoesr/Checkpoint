@@ -1,5 +1,5 @@
 /**
- * Búsqueda de juegos vía RAWG; solo se usa en /games.
+ * Búsqueda de juegos vía IGDB; solo se usa en /games.
  * Envía a /search con ?q=
  */
 export function GamesSearchBar() {
@@ -11,7 +11,7 @@ export function GamesSearchBar() {
       className="mt-6 w-full max-w-md"
     >
       <label className="sr-only" htmlFor="games-search-q">
-        Buscar juegos en la API RAWG
+        Buscar juegos en IGDB
       </label>
       <div className="flex items-center gap-2 rounded-xl border border-[#2f3642] bg-[#1f252d] px-3 py-2.5 focus-within:border-emerald-500/50 focus-within:ring-2 focus-within:ring-emerald-500/20">
         <svg
@@ -32,7 +32,7 @@ export function GamesSearchBar() {
           id="games-search-q"
           name="q"
           type="search"
-          placeholder="Buscar juego en RAWG…"
+          placeholder="Buscar juego…"
           className="min-w-0 flex-1 border-0 bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none focus:ring-0"
         />
         <button

@@ -3,14 +3,14 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createUserListWithFirstGameAction } from "@/app/lists/actions";
-import type { RawgSearchHit } from "@/lib/rawg";
+import type { GameSearchHit } from "@/lib/igdb";
 
 export function NewListDraftEditor() {
   const router = useRouter();
   const [name, setName] = useState("Nueva lista");
   const [description, setDescription] = useState("");
   const [q, setQ] = useState("");
-  const [hits, setHits] = useState<RawgSearchHit[]>([]);
+  const [hits, setHits] = useState<GameSearchHit[]>([]);
   const [searching, setSearching] = useState(false);
   const [pendingAdd, startAdd] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
@@ -31,14 +31,14 @@ export function NewListDraftEditor() {
         setHits([]);
         return;
       }
-      const data = (await res.json()) as { results?: RawgSearchHit[] };
+      const data = (await res.json()) as { results?: GameSearchHit[] };
       setHits(data.results ?? []);
     } finally {
       setSearching(false);
     }
   }
 
-  function addFirstGame(rawgId: number) {
+  function addFirstGame(igdbId: number) {
     startAdd(async () => {
       setMsg(null);
       const trimmedName = name.trim();
@@ -52,7 +52,7 @@ export function NewListDraftEditor() {
         return;
       }
       const res = await createUserListWithFirstGameAction(
-        rawgId,
+        igdbId,
         trimmedName,
         descTrim.length > 0 ? descTrim : null,
       );

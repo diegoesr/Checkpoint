@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import type { HomeMarqueeGame } from "@/lib/rawg";
+import type { HomeMarqueeGame } from "@/lib/igdb";
 import LogoLoop, { type LogoItem } from "@/components/landing/LogoLoop";
 import { MarqueeGameCard } from "@/components/landing/MarqueeGameCard";
 
 type Props = {
   games: HomeMarqueeGame[];
-  showRawgAttribution?: boolean;
+  showAttribution?: boolean;
   hasApiKey: boolean;
 };
 
 export function PopularGamesMarquee({
   games,
-  showRawgAttribution,
+  showAttribution,
   hasApiKey,
 }: Props) {
   const loopItems: LogoItem[] = games.map((g) => ({
@@ -22,6 +22,31 @@ export function PopularGamesMarquee({
     href: g.href,
     title: g.name,
   }));
+
+  if (games.length === 0 && hasApiKey) {
+    // Hay credenciales pero IGDB no respondió (caída, límite de uso o timeout).
+    return (
+      <section className="relative z-10 -mt-32 border-t border-white/10 bg-black pb-8 pt-6 sm:-mt-36 sm:pb-10 sm:pt-7">
+        <div className="mx-auto max-w-lg px-4 text-center sm:px-6">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-6 sm:px-8 sm:py-8">
+            <p className="text-sm font-semibold text-white/90">
+              No pudimos cargar las carátulas ahora mismo
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-white/55">
+              El servicio de juegos no está respondiendo. Vuelve a intentarlo en
+              unos minutos.
+            </p>
+            <Link
+              href="/games"
+              className="mt-5 inline-block text-sm font-medium text-violet-400 hover:text-violet-300"
+            >
+              Ver página Juegos →
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (games.length === 0) {
     return (
@@ -45,18 +70,18 @@ export function PopularGamesMarquee({
               <li>
                 Escribe:{" "}
                 <code className="rounded bg-black/40 px-1.5 py-0.5 text-xs text-amber-200">
-                  
+                  IGDB_CLIENT_ID=… e IGDB_CLIENT_SECRET=…
                 </code>
               </li>
               <li>
                 Obtén la clave en{" "}
                 <a
-                  href="https://rawg.io/apidocs"
+                  href="https://api-docs.igdb.com/#account-creation"
                   target="_blank"
                   rel="noreferrer noopener"
                   className="font-medium text-violet-300 underline underline-offset-2 hover:text-violet-200"
                 >
-                  rawg.io/apidocs
+                  api-docs.igdb.com
                 </a>
                 .
               </li>
@@ -96,16 +121,16 @@ export function PopularGamesMarquee({
           className="w-full"
         />
       </div>
-      {showRawgAttribution && hasApiKey ? (
+      {showAttribution && hasApiKey ? (
         <p className="mt-3 text-center text-[10px] text-white/35">
           Metadatos y carátulas vía{" "}
           <a
-            href="https://rawg.io"
+            href="https://www.igdb.com"
             target="_blank"
             rel="noreferrer noopener"
             className="text-white/50 underline decoration-white/20 underline-offset-2 hover:text-white/70"
           >
-            RAWG
+            IGDB
           </a>
         </p>
       ) : null}

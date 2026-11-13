@@ -175,7 +175,7 @@ export function NavbarNotificationsMenu({ initialItems }: Props) {
                             le gustó tu reseña de{" "}
                           </span>
                           <Link
-                            href={`/games/${item.rawgId}`}
+                            href={`/games/${item.igdbId}`}
                             className="font-medium text-emerald-400/90 hover:underline"
                             onClick={closeAndMarkSeen}
                           >

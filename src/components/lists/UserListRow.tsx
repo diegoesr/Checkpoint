@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ListTiltedPreview } from "@/components/lists/ListTiltedPreview";
 import type { UserListWithPreview } from "@/lib/supabase/user-lists";
-import { RAWG_COVER_QUALITY } from "@/lib/rawg-image";
+import { GAME_COVER_QUALITY } from "@/lib/game-image";
 
 type Props = { list: UserListWithPreview };
 
@@ -58,7 +58,7 @@ export function UserListRow({ list }: Props) {
                   fill
                   className="object-cover"
                   sizes="68px"
-                  quality={RAWG_COVER_QUALITY}
+                  quality={GAME_COVER_QUALITY}
                 />
               </div>
             ))

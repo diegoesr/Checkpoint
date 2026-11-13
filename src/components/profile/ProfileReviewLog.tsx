@@ -13,12 +13,12 @@ import {
 } from "react";
 import { addGameActivityAction, addGameReviewAction } from "@/app/profile/actions";
 import { PlaytimeHoursField } from "@/components/profile/PlaytimeHoursField";
-import { RawgSearchModal, type RawgGamePick } from "@/components/profile/RawgSearchModal";
+import { GameSearchModal, type GamePick } from "@/components/profile/GameSearchModal";
 import { GAME_PLATFORMS } from "@/lib/game-platforms";
 import {
-  RAWG_COVER_QUALITY,
-  RAWG_COVER_SIZES_POSTER_COMPACT,
-} from "@/lib/rawg-image";
+  GAME_COVER_QUALITY,
+  GAME_COVER_SIZES_POSTER_COMPACT,
+} from "@/lib/game-image";
 
 function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
@@ -154,7 +154,7 @@ export function ProfileReviewLog({
   const router = useRouter();
   const autoOpenedRef = useRef(false);
   const [phase, setPhase] = useState<"closed" | "pick" | "form">("closed");
-  const [game, setGame] = useState<RawgGamePick | null>(null);
+  const [game, setGame] = useState<GamePick | null>(null);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(4);
   const [startedOn, setStartedOn] = useState("");
@@ -163,7 +163,7 @@ export function ProfileReviewLog({
   const [liked, setLiked] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
-  const [activityGame, setActivityGame] = useState<RawgGamePick | null>(null);
+  const [activityGame, setActivityGame] = useState<GamePick | null>(null);
   const [activityStartedOn, setActivityStartedOn] = useState("");
   const [activityPlaytimeStr, setActivityPlaytimeStr] = useState("");
   const [activityPlatform, setActivityPlatform] = useState("");
@@ -218,7 +218,7 @@ export function ProfileReviewLog({
     }
   }, [autoOpen]);
 
-  const onGameChosen = (g: RawgGamePick) => {
+  const onGameChosen = (g: GamePick) => {
     setGame(g);
     setPhase("form");
     setFinishedOn(todayIsoDate());
@@ -247,7 +247,7 @@ export function ProfileReviewLog({
     }
     setSaving(true);
     const res = await addGameReviewAction({
-      rawgId: game.id,
+      igdbId: game.id,
       body: reviewText,
       rating,
       startedOn: startedOn || null,
@@ -289,7 +289,7 @@ export function ProfileReviewLog({
     }
     setActivitySaving(true);
     const res = await addGameActivityAction({
-      rawgId: activityGame.id,
+      igdbId: activityGame.id,
       startedOn: activityStartedOn || null,
       playtimeHours,
       platform:
@@ -335,7 +335,7 @@ export function ProfileReviewLog({
         </div>
       </div>
 
-      <RawgSearchModal
+      <GameSearchModal
         open={activityOpen}
         title="Registrar actividad — elige juego"
         onClose={() => setActivityOpen(false)}
@@ -345,7 +345,7 @@ export function ProfileReviewLog({
         }}
       />
 
-      <RawgSearchModal
+      <GameSearchModal
         open={phase === "pick"}
         title="Elegir juego — reseña"
         onClose={closeAll}
@@ -397,9 +397,9 @@ export function ProfileReviewLog({
                         src={activityGame.background_image}
                         alt=""
                         fill
-                        quality={RAWG_COVER_QUALITY}
+                        quality={GAME_COVER_QUALITY}
                         className="object-cover"
-                        sizes={RAWG_COVER_SIZES_POSTER_COMPACT}
+                        sizes={GAME_COVER_SIZES_POSTER_COMPACT}
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center bg-[#1a1f26] text-xs text-[#567]">
@@ -526,9 +526,9 @@ export function ProfileReviewLog({
                         src={game.background_image}
                         alt=""
                         fill
-                        quality={RAWG_COVER_QUALITY}
+                        quality={GAME_COVER_QUALITY}
                         className="object-cover"
-                        sizes={RAWG_COVER_SIZES_POSTER_COMPACT}
+                        sizes={GAME_COVER_SIZES_POSTER_COMPACT}
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center bg-[#1a1f26] text-xs text-[#567]">

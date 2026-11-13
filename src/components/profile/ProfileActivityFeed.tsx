@@ -120,9 +120,9 @@ export function ProfileActivityFeed({ entries, diaryHref }: Props) {
                       <span className="font-bold text-white">Alguien</span>
                     )}
                     <span> le gustó tu reseña de </span>
-                    {e.rawgId != null ? (
+                    {e.igdbId != null ? (
                       <Link
-                        href={`/games/${e.rawgId}`}
+                        href={`/games/${e.igdbId}`}
                         className="font-bold text-white transition hover:text-[#40bcf4]"
                       >
                         <span className="break-words">{e.gameName}</span>
@@ -155,9 +155,9 @@ export function ProfileActivityFeed({ entries, diaryHref }: Props) {
                               return "Reseñaste";
                             })()}
                     </span>
-                    {e.rawgId != null ? (
+                    {e.igdbId != null ? (
                       <Link
-                        href={`/games/${e.rawgId}`}
+                        href={`/games/${e.igdbId}`}
                         className="min-w-0 font-bold text-white transition hover:text-[#40bcf4]"
                       >
                         <span className="break-words">{e.gameName}</span>

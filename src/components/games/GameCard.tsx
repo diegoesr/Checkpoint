@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatGenresLabel, type TrendingGame } from "@/lib/rawg";
+import { formatGenresLabel, type TrendingGame } from "@/lib/igdb";
 
 type Props = { game: TrendingGame; rank?: number };
 
@@ -11,9 +11,9 @@ export function GameCard({ game, rank }: Props) {
       className="group relative z-0 flex h-[26rem] w-full origin-center flex-col overflow-hidden rounded-2xl border border-[#2f3642] bg-[#1a1f26] transition-[transform,box-shadow,border-color] duration-300 ease-out will-change-transform hover:z-10 hover:scale-[1.12] hover:border-[#40bcf4]/45 hover:shadow-lg hover:shadow-black/40 focus-visible:border-[#40bcf4] focus-visible:outline-none active:border-[#40bcf4] motion-reduce:transition-none motion-reduce:hover:scale-100 sm:h-[27.5rem]"
     >
       <div className="relative h-[11.25rem] w-full shrink-0 bg-[#1f252d] sm:h-[12.5rem]">
-        {game.background_image ? (
+        {game.hero_image ? (
           <Image
-            src={game.background_image}
+            src={game.hero_image}
             alt=""
             fill
             className="object-cover"
@@ -41,9 +41,9 @@ export function GameCard({ game, rank }: Props) {
           {game.released ? (
             <span className="text-sm text-[#678]">{game.released}</span>
           ) : null}
-          {game.metacritic != null ? (
+          {game.rating != null ? (
             <span className="rounded-md border border-[#2f3642] bg-[#1f252d] px-2.5 py-1 text-sm font-medium text-[#e6edf3]">
-              Metacritic {game.metacritic}
+              Crítica {game.rating}
             </span>
           ) : null}
         </div>

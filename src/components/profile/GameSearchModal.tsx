@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
-export type RawgGamePick = {
+export type GamePick = {
   id: number;
   name: string;
   background_image: string | null;
@@ -14,13 +14,13 @@ type Props = {
   open: boolean;
   title: string;
   onClose: () => void;
-  onSelect: (game: RawgGamePick) => void;
+  onSelect: (game: GamePick) => void;
 };
 
-export function RawgSearchModal({ open, title, onClose, onSelect }: Props) {
+export function GameSearchModal({ open, title, onClose, onSelect }: Props) {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<RawgGamePick[]>([]);
+  const [results, setResults] = useState<GamePick[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const search = useCallback(async (query: string) => {
@@ -41,7 +41,7 @@ export function RawgSearchModal({ open, title, onClose, onSelect }: Props) {
         return;
       }
       const data = (await res.json()) as {
-        results?: RawgGamePick[];
+        results?: GamePick[];
       };
       setResults(data.results ?? []);
     } catch {
@@ -76,11 +76,11 @@ export function RawgSearchModal({ open, title, onClose, onSelect }: Props) {
     >
       <div
         role="dialog"
-        aria-labelledby="rawg-search-title"
+        aria-labelledby="game-search-title"
         className="my-auto w-full max-w-lg rounded-2xl border border-white/10 bg-[#1a1f26] p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="rawg-search-title" className="text-lg font-semibold text-white">
+        <h2 id="game-search-title" className="text-lg font-semibold text-white">
           {title}
         </h2>
         <input

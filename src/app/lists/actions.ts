@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getGameById } from "@/lib/rawg";
+import { getGameById } from "@/lib/igdb";
 import { createClient } from "@/lib/supabase/server";
 
 function revalidateLists(listId?: string) {
@@ -22,7 +22,7 @@ async function touchListUpdated(supabase: Awaited<ReturnType<typeof createClient
  * No se usa fila vacía: la lista solo existe cuando hay al menos un juego.
  */
 export async function createUserListWithFirstGameAction(
-  rawgId: number,
+  igdbId: number,
   name: string,
   description: string | null,
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
@@ -34,8 +34,8 @@ export async function createUserListWithFirstGameAction(
     return { ok: false, error: "La descripción admite como máximo 500 caracteres." };
   }
 
-  const game = await getGameById(rawgId);
-  if (!game) return { ok: false, error: "Juego no encontrado en RAWG." };
+  const game = await getGameById(igdbId);
+  if (!game) return { ok: false, error: "Juego no encontrado en IGDB." };
 
   const supabase = await createClient();
   const {
@@ -70,7 +70,7 @@ export async function createUserListWithFirstGameAction(
 
   const { error: entryErr } = await supabase.from("user_list_entries").insert({
     list_id: listId,
-    rawg_id: game.id,
+    igdb_id: game.id,
     game_name: game.name,
     background_image: game.background_image ?? null,
     position: 1,
@@ -153,10 +153,10 @@ export async function deleteUserListAction(listId: string): Promise<void> {
 
 export async function addGameToUserListAction(
   listId: string,
-  rawgId: number,
+  igdbId: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const game = await getGameById(rawgId);
-  if (!game) return { ok: false, error: "Juego no encontrado en RAWG." };
+  const game = await getGameById(igdbId);
+  if (!game) return { ok: false, error: "Juego no encontrado en IGDB." };
 
   const supabase = await createClient();
   const {
@@ -181,7 +181,7 @@ export async function addGameToUserListAction(
 
   const { error } = await supabase.from("user_list_entries").insert({
     list_id: listId,
-    rawg_id: game.id,
+    igdb_id: game.id,
     game_name: game.name,
     background_image: game.background_image ?? null,
     position,

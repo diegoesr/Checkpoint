@@ -124,7 +124,7 @@ export default function TiltedCard({
           scale,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- URLs RAWG / data URI */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- URLs de carátulas / data URI */}
         <motion.img
           src={imageSrc as string}
           alt={altText}

@@ -11,9 +11,9 @@ import { PlaytimeHoursField } from "@/components/profile/PlaytimeHoursField";
 import { GAME_PLATFORMS, gamePlatformLabel } from "@/lib/game-platforms";
 import { formatHoursStep } from "@/lib/playtime-input";
 import {
-  RAWG_COVER_QUALITY,
-  RAWG_COVER_SIZES_POSTER_COMPACT,
-} from "@/lib/rawg-image";
+  GAME_COVER_QUALITY,
+  GAME_COVER_SIZES_POSTER_COMPACT,
+} from "@/lib/game-image";
 import {
   formatPlaytimeHours,
   formatShortDate,
@@ -140,9 +140,9 @@ export function ProfileActivitySection({
                     src={a.background_image}
                     alt=""
                     fill
-                    quality={RAWG_COVER_QUALITY}
+                    quality={GAME_COVER_QUALITY}
                     className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    sizes={RAWG_COVER_SIZES_POSTER_COMPACT}
+                    sizes={GAME_COVER_SIZES_POSTER_COMPACT}
                   />
                 ) : null}
                 {!readOnly ? (

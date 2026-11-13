@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isValidGamePlatformId } from "@/lib/game-platforms";
-import { getGameById } from "@/lib/rawg";
+import { getGameById } from "@/lib/igdb";
 import {
   getProfileStatGameGridItems,
   PROFILE_PLAYING_SECTION_MAX_GAMES,
@@ -309,11 +309,11 @@ export async function saveProfileLinksAction(
 
 export async function setFavoriteSlotAction(
   slot: number,
-  rawgId: number,
+  igdbId: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (slot < 1 || slot > 4) return { ok: false, error: "Slot inválido" };
-  const game = await getGameById(rawgId);
-  if (!game) return { ok: false, error: "No se encontró el juego en RAWG." };
+  const game = await getGameById(igdbId);
+  if (!game) return { ok: false, error: "No se encontró el juego en IGDB." };
 
   const supabase = await createClient();
   const {
@@ -325,7 +325,7 @@ export async function setFavoriteSlotAction(
     {
       user_id: user.id,
       slot,
-      rawg_id: game.id,
+      igdb_id: game.id,
       game_name: game.name,
       background_image: game.background_image,
       updated_at: new Date().toISOString(),
@@ -366,7 +366,7 @@ export async function clearFavoriteSlotAction(
 }
 
 export type AddGameActivityPayload = {
-  rawgId: number;
+  igdbId: number;
   note?: string | null;
   /** Fecha en que empezó a jugar (YYYY-MM-DD), opcional. */
   startedOn?: string | null;
@@ -379,7 +379,7 @@ export async function addGameActivityAction(
   payload: AddGameActivityPayload,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const {
-    rawgId,
+    igdbId,
     note,
     startedOn,
     playtimeHours: playtimeRaw,
@@ -412,7 +412,7 @@ export async function addGameActivityAction(
       ? String(startedOn).trim().slice(0, 10)
       : null;
 
-  const game = await getGameById(rawgId);
+  const game = await getGameById(igdbId);
   if (!game) return { ok: false, error: "Juego no encontrado." };
 
   const supabase = await createClient();
@@ -423,14 +423,14 @@ export async function addGameActivityAction(
 
   const { data: existingPlaying } = await supabase
     .from("game_activity")
-    .select("rawg_id")
+    .select("igdb_id")
     .eq("user_id", user.id);
-  const distinctRawg = new Set(
-    (existingPlaying ?? []).map((r) => Number(r.rawg_id)),
+  const distinctGames = new Set(
+    (existingPlaying ?? []).map((r) => Number(r.igdb_id)),
   );
   if (
-    distinctRawg.size >= PROFILE_PLAYING_SECTION_MAX_GAMES &&
-    !distinctRawg.has(game.id)
+    distinctGames.size >= PROFILE_PLAYING_SECTION_MAX_GAMES &&
+    !distinctGames.has(game.id)
   ) {
     return {
       ok: false,
@@ -440,7 +440,7 @@ export async function addGameActivityAction(
 
   const row: Record<string, unknown> = {
     user_id: user.id,
-    rawg_id: game.id,
+    igdb_id: game.id,
     game_name: game.name,
     background_image: game.background_image,
     played_at: new Date().toISOString(),
@@ -575,7 +575,7 @@ export async function deleteGameActivityAction(
 }
 
 export type AddGameReviewPayload = {
-  rawgId: number;
+  igdbId: number;
   body: string;
   rating: number;
   startedOn: string | null;
@@ -592,7 +592,7 @@ export async function addGameReviewAction(
   payload: AddGameReviewPayload,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const {
-    rawgId,
+    igdbId,
     body,
     rating,
     startedOn,
@@ -638,7 +638,7 @@ export async function addGameReviewAction(
     platform = p;
   }
 
-  const game = await getGameById(rawgId);
+  const game = await getGameById(igdbId);
   if (!game) return { ok: false, error: "Juego no encontrado." };
 
   const supabase = await createClient();
@@ -650,7 +650,7 @@ export async function addGameReviewAction(
   const text = body.trim();
   const row: Record<string, unknown> = {
     user_id: user.id,
-    rawg_id: game.id,
+    igdb_id: game.id,
     game_name: game.name,
     background_image: game.background_image,
     body: text.length > 0 ? text : "",
@@ -720,9 +720,9 @@ export async function addGameReviewAction(
 }
 
 export async function addGameToBacklogAction(
-  rawgId: number,
+  igdbId: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const game = await getGameById(rawgId);
+  const game = await getGameById(igdbId);
   if (!game) return { ok: false, error: "Juego no encontrado." };
 
   const supabase = await createClient();
@@ -733,7 +733,7 @@ export async function addGameToBacklogAction(
 
   const { error } = await supabase.from("game_backlog").insert({
     user_id: user.id,
-    rawg_id: game.id,
+    igdb_id: game.id,
     game_name: game.name,
     background_image: game.background_image ?? null,
     note: null,
@@ -758,8 +758,8 @@ export async function addGameToBacklogAction(
   return { ok: true };
 }
 
-export async function removeGameFromBacklogByRawgIdAction(
-  rawgId: number,
+export async function removeGameFromBacklogByIgdbIdAction(
+  igdbId: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await createClient();
   const {
@@ -771,7 +771,7 @@ export async function removeGameFromBacklogByRawgIdAction(
     .from("game_backlog")
     .delete()
     .eq("user_id", user.id)
-    .eq("rawg_id", rawgId);
+    .eq("igdb_id", igdbId);
 
   if (error) {
     if (error.message.includes("relation") || error.code === "42P01") {
@@ -785,7 +785,7 @@ export async function removeGameFromBacklogByRawgIdAction(
   }
 
   revalidateProfile();
-  revalidatePath(`/games/${rawgId}`);
+  revalidatePath(`/games/${igdbId}`);
   return { ok: true };
 }
 
@@ -800,7 +800,7 @@ export async function removeGameFromBacklogEntryAction(
 
   const { data: row, error: selErr } = await supabase
     .from("game_backlog")
-    .select("rawg_id")
+    .select("igdb_id")
     .eq("id", entryId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -809,7 +809,7 @@ export async function removeGameFromBacklogEntryAction(
     return { ok: false, error: "Entrada no encontrada." };
   }
 
-  const rawgId = row.rawg_id as number;
+  const igdbId = row.igdb_id as number;
 
   const { error } = await supabase
     .from("game_backlog")
@@ -822,7 +822,7 @@ export async function removeGameFromBacklogEntryAction(
   }
 
   revalidateProfile();
-  revalidatePath(`/games/${rawgId}`);
+  revalidatePath(`/games/${igdbId}`);
   return { ok: true };
 }
 

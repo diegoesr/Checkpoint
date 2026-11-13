@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { GameBacklogRow } from "@/lib/supabase/game-backlog";
-import { RAWG_COVER_QUALITY } from "@/lib/rawg-image";
+import { GAME_COVER_QUALITY } from "@/lib/game-image";
 
 type Props = {
   preview: GameBacklogRow[];
@@ -32,7 +32,7 @@ export function ProfileBacklogSidebar({
           fill
           className="object-cover"
           sizes="(max-width: 1024px) 18vw, 56px"
-          quality={RAWG_COVER_QUALITY}
+          quality={GAME_COVER_QUALITY}
         />
       ) : (
         <span className="sr-only">{row.game_name}</span>

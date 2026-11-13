@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { UserListEntryRecord } from "@/lib/supabase/user-lists";
-import { RAWG_COVER_QUALITY } from "@/lib/rawg-image";
+import { GAME_COVER_QUALITY } from "@/lib/game-image";
 
 export function ListReadOnlyGrid({
   entries,
@@ -19,7 +19,7 @@ export function ListReadOnlyGrid({
       {entries.map((e) => (
         <li key={e.id}>
           <Link
-            href={`/games/${e.rawg_id}`}
+            href={`/games/${e.igdb_id}`}
             className="group block"
           >
             <div className="relative aspect-[2/3] overflow-hidden rounded-[3px] bg-[#1f252d] ring-1 ring-[#2f3642] transition group-hover:ring-[#40bcf4]/40 sm:rounded-sm">
@@ -30,7 +30,7 @@ export function ListReadOnlyGrid({
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 45vw, 200px"
-                  quality={RAWG_COVER_QUALITY}
+                  quality={GAME_COVER_QUALITY}
                 />
               ) : (
                 <div className="flex size-full items-center justify-center text-xs text-[#567]">

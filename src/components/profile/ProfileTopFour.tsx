@@ -9,8 +9,8 @@ import {
 } from "@/app/profile/actions";
 import { HalfStarRatingDisplay } from "@/components/profile/HalfStarRatingDisplay";
 import type { FavoriteGameRecord } from "@/lib/supabase/profile-dashboard";
-import { RawgSearchModal } from "@/components/profile/RawgSearchModal";
-import { RAWG_COVER_QUALITY } from "@/lib/rawg-image";
+import { GameSearchModal } from "@/components/profile/GameSearchModal";
+import { GAME_COVER_QUALITY } from "@/lib/game-image";
 
 type Props = { initial: FavoriteGameRecord[]; readOnly?: boolean };
 
@@ -76,7 +76,7 @@ export function ProfileTopFour({ initial, readOnly = false }: Props) {
                     src={g.background_image}
                     alt=""
                     fill
-                    quality={RAWG_COVER_QUALITY}
+                    quality={GAME_COVER_QUALITY}
                     className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02] md:duration-500 md:group-hover:scale-105"
                     sizes="(max-width:640px) 55vw, 30vw"
                   />
@@ -226,7 +226,7 @@ export function ProfileTopFour({ initial, readOnly = false }: Props) {
         </div>
       ) : null}
       {!readOnly ? (
-        <RawgSearchModal
+        <GameSearchModal
           open={pickerSlot !== null}
           title={`Elegir juego — espacio ${pickerSlot ?? ""}`}
           onClose={() => {

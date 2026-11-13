@@ -35,10 +35,10 @@ export type ProfileLinkRecord = {
 
 export type FavoriteGameRecord = {
   slot: number;
-  rawg_id: number;
+  igdb_id: number;
   game_name: string;
   background_image: string | null;
-  /** Reseña más reciente del mismo juego (rawg_id), si existe. */
+  /** Reseña más reciente del mismo juego (igdb_id), si existe. */
   review_rating?: number | null;
   /** True si alguna reseña de este juego tiene «me gusta» (corazón). */
   review_liked?: boolean | null;
@@ -46,7 +46,7 @@ export type FavoriteGameRecord = {
 
 export type GameActivityRecord = {
   id: string;
-  rawg_id: number;
+  igdb_id: number;
   game_name: string;
   background_image: string | null;
   played_at: string;
@@ -58,7 +58,7 @@ export type GameActivityRecord = {
 
 export type GameReviewRecord = {
   id: string;
-  rawg_id: number;
+  igdb_id: number;
   game_name: string;
   background_image: string | null;
   body: string | null;
@@ -79,7 +79,7 @@ export type GameReviewRecord = {
 
 export type ProfileDashboardStats = {
   /**
-   * Juegos distintos (`rawg_id`) que el usuario ha registrado en la app:
+   * Juegos distintos (`igdb_id`) que el usuario ha registrado en la app:
    * actividad «jugando», reseñas, backlog o favoritos (histórico completo, sin límite de año).
    */
   gamesCount: number;
@@ -87,9 +87,9 @@ export type ProfileDashboardStats = {
   thisYearGamesCount: number;
 };
 
-const RAWG_ID_PAGE_SIZE = 1000;
+const GAME_ID_PAGE_SIZE = 1000;
 
-async function fetchAllRawgIdsForUser(
+async function fetchAllIgdbIdsForUser(
   supabase: SupabaseClient,
   table:
     | "game_activity"
@@ -103,19 +103,19 @@ async function fetchAllRawgIdsForUser(
   for (;;) {
     const { data, error } = await supabase
       .from(table)
-      .select("rawg_id")
+      .select("igdb_id")
       .eq("user_id", userId)
-      .range(from, from + RAWG_ID_PAGE_SIZE - 1);
+      .range(from, from + GAME_ID_PAGE_SIZE - 1);
     if (error) {
       break;
     }
     const rows = data ?? [];
     for (const row of rows) {
-      const n = Number((row as { rawg_id: unknown }).rawg_id);
+      const n = Number((row as { igdb_id: unknown }).igdb_id);
       if (Number.isFinite(n)) ids.push(n);
     }
-    if (rows.length < RAWG_ID_PAGE_SIZE) break;
-    from += RAWG_ID_PAGE_SIZE;
+    if (rows.length < GAME_ID_PAGE_SIZE) break;
+    from += GAME_ID_PAGE_SIZE;
   }
   return ids;
 }
@@ -126,10 +126,10 @@ async function countDistinctRegisteredGames(
   supabase: SupabaseClient,
 ): Promise<number> {
   const [activityIds, reviewIds, backlogIds, favoriteIds] = await Promise.all([
-    fetchAllRawgIdsForUser(supabase, "game_activity", userId),
-    fetchAllRawgIdsForUser(supabase, "game_reviews", userId),
-    fetchAllRawgIdsForUser(supabase, "game_backlog", userId),
-    fetchAllRawgIdsForUser(supabase, "favorite_games", userId),
+    fetchAllIgdbIdsForUser(supabase, "game_activity", userId),
+    fetchAllIgdbIdsForUser(supabase, "game_reviews", userId),
+    fetchAllIgdbIdsForUser(supabase, "game_backlog", userId),
+    fetchAllIgdbIdsForUser(supabase, "favorite_games", userId),
   ]);
   return new Set([
     ...activityIds,
@@ -141,7 +141,7 @@ async function countDistinctRegisteredGames(
 
 /** Ítem para la rejilla tipo Letterboxd al pulsar «Juegos» / «Este año». */
 export type ProfileStatGameGridItem = {
-  rawg_id: number;
+  igdb_id: number;
   game_name: string;
   background_image: string | null;
   rating: number | null;
@@ -179,25 +179,25 @@ async function paginateTable<T>(
     }
     const { data, error } = await q.range(
       from,
-      from + RAWG_ID_PAGE_SIZE - 1,
+      from + GAME_ID_PAGE_SIZE - 1,
     );
     if (error) {
       break;
     }
     const rows = (data ?? []) as unknown as T[];
     out.push(...rows);
-    if (rows.length < RAWG_ID_PAGE_SIZE) break;
-    from += RAWG_ID_PAGE_SIZE;
+    if (rows.length < GAME_ID_PAGE_SIZE) break;
+    from += GAME_ID_PAGE_SIZE;
   }
   return out;
 }
 
-async function buildLatestReviewMetaByRawg(
+async function buildLatestReviewMetaByGame(
   userId: string,
   supabase: SupabaseClient,
 ): Promise<Map<number, { rating: number | null; liked: boolean }>> {
   type Row = {
-    rawg_id: number;
+    igdb_id: number;
     rating: number | null;
     liked: boolean | null;
     created_at: string;
@@ -206,14 +206,14 @@ async function buildLatestReviewMetaByRawg(
     supabase,
     "game_reviews",
     userId,
-    "rawg_id, rating, liked, created_at",
+    "igdb_id, rating, liked, created_at",
     { order: { column: "created_at", ascending: false } },
   );
   const map = new Map<number, { rating: number | null; liked: boolean }>();
   for (const r of rows) {
-    if (map.has(r.rawg_id)) continue;
+    if (map.has(r.igdb_id)) continue;
     const n = r.rating != null ? Number(r.rating) : null;
-    map.set(r.rawg_id, {
+    map.set(r.igdb_id, {
       rating: n != null && Number.isFinite(n) && n > 0 ? n : null,
       liked: Boolean(r.liked),
     });
@@ -244,10 +244,10 @@ export async function getProfileStatGameGridItems(
 ): Promise<ProfileStatGameGridItem[]> {
   const supabase = client ?? (await createClient());
   const yearStart = `${new Date().getFullYear()}-01-01T00:00:00.000Z`;
-  const reviewMeta = await buildLatestReviewMetaByRawg(userId, supabase);
+  const reviewMeta = await buildLatestReviewMetaByGame(userId, supabase);
 
   type SimpleRow = {
-    rawg_id: number;
+    igdb_id: number;
     game_name: string | null;
     background_image: string | null;
   };
@@ -258,7 +258,7 @@ export async function getProfileStatGameGridItems(
       supabase,
       "game_activity",
       userId,
-      "rawg_id, game_name, background_image, played_at",
+      "igdb_id, game_name, background_image, played_at",
       {
         gte: { column: "played_at", value: yearStart },
         order: { column: "played_at", ascending: false },
@@ -268,33 +268,33 @@ export async function getProfileStatGameGridItems(
     const byId = new Map<number, { name: string; bg: string | null }>();
     const seen = new Set<number>();
     for (const r of actRows) {
-      if (seen.has(r.rawg_id)) continue;
-      seen.add(r.rawg_id);
-      ordered.push(r.rawg_id);
-      const name = r.game_name?.trim() || `Juego #${r.rawg_id}`;
-      byId.set(r.rawg_id, {
+      if (seen.has(r.igdb_id)) continue;
+      seen.add(r.igdb_id);
+      ordered.push(r.igdb_id);
+      const name = r.game_name?.trim() || `Juego #${r.igdb_id}`;
+      byId.set(r.igdb_id, {
         name,
         bg: r.background_image ?? null,
       });
     }
-    const favRows = await paginateTable<{ rawg_id: number }>(
+    const favRows = await paginateTable<{ igdb_id: number }>(
       supabase,
       "favorite_games",
       userId,
-      "rawg_id",
+      "igdb_id",
       { order: { column: "slot", ascending: true } },
     );
-    const favSet = new Set(favRows.map((x) => x.rawg_id));
-    return ordered.map((rawg_id) => {
-      const v = byId.get(rawg_id)!;
-      const m = reviewMeta.get(rawg_id);
+    const favSet = new Set(favRows.map((x) => x.igdb_id));
+    return ordered.map((igdb_id) => {
+      const v = byId.get(igdb_id)!;
+      const m = reviewMeta.get(igdb_id);
       return {
-        rawg_id,
+        igdb_id,
         game_name: v.name,
         background_image: v.bg,
         rating: m?.rating ?? null,
         liked: m?.liked ?? false,
-        is_favorite: favSet.has(rawg_id),
+        is_favorite: favSet.has(igdb_id),
       };
     });
   }
@@ -319,53 +319,53 @@ export async function getProfileStatGameGridItems(
     supabase,
     "game_activity",
     userId,
-    "rawg_id, game_name, background_image",
+    "igdb_id, game_name, background_image",
     { order: { column: "played_at", ascending: false } },
   );
   for (const r of activityRows) {
-    mergeNameBg(ensure(r.rawg_id), r.game_name, r.background_image);
+    mergeNameBg(ensure(r.igdb_id), r.game_name, r.background_image);
   }
 
   const backlogRows = await paginateTable<SimpleRow>(
     supabase,
     "game_backlog",
     userId,
-    "rawg_id, game_name, background_image",
+    "igdb_id, game_name, background_image",
     { order: { column: "created_at", ascending: false } },
   );
   for (const r of backlogRows) {
-    mergeNameBg(ensure(r.rawg_id), r.game_name, r.background_image);
+    mergeNameBg(ensure(r.igdb_id), r.game_name, r.background_image);
   }
 
   const reviewRows = await paginateTable<SimpleRow>(
     supabase,
     "game_reviews",
     userId,
-    "rawg_id, game_name, background_image",
+    "igdb_id, game_name, background_image",
     { order: { column: "created_at", ascending: false } },
   );
   for (const r of reviewRows) {
-    mergeNameBg(ensure(r.rawg_id), r.game_name, r.background_image);
+    mergeNameBg(ensure(r.igdb_id), r.game_name, r.background_image);
   }
 
   const favoriteRows = await paginateTable<SimpleRow>(
     supabase,
     "favorite_games",
     userId,
-    "rawg_id, game_name, background_image",
+    "igdb_id, game_name, background_image",
     { order: { column: "slot", ascending: true } },
   );
   for (const r of favoriteRows) {
-    const cur = ensure(r.rawg_id);
+    const cur = ensure(r.igdb_id);
     cur.is_favorite = true;
     mergeNameBg(cur, r.game_name, r.background_image);
   }
 
   const list: ProfileStatGameGridItem[] = [...merge.entries()].map(
-    ([rawg_id, v]) => {
-      const m = reviewMeta.get(rawg_id);
+    ([igdb_id, v]) => {
+      const m = reviewMeta.get(igdb_id);
       return {
-        rawg_id,
+        igdb_id,
         game_name: v.name,
         background_image: v.bg,
         rating: m?.rating ?? null,
@@ -384,7 +384,7 @@ export async function getProfileStatGameGridItems(
 export const PROFILE_PLAYING_SECTION_MAX_GAMES = 5;
 
 /**
- * Actividad reciente acotada a juegos únicos (`rawg_id`), como en la sección de perfil.
+ * Actividad reciente acotada a juegos únicos (`igdb_id`), como en la sección de perfil.
  */
 export function limitPlayingActivityForProfileSection(
   activity: GameActivityRecord[],
@@ -392,8 +392,8 @@ export function limitPlayingActivityForProfileSection(
   const seen = new Set<number>();
   const out: GameActivityRecord[] = [];
   for (const row of activity) {
-    if (seen.has(row.rawg_id)) continue;
-    seen.add(row.rawg_id);
+    if (seen.has(row.igdb_id)) continue;
+    seen.add(row.igdb_id);
     out.push(row);
     if (out.length >= PROFILE_PLAYING_SECTION_MAX_GAMES) break;
   }
@@ -444,13 +444,13 @@ export async function getProfileDashboard(
       .order("sort_order", { ascending: true }),
     supabase
       .from("favorite_games")
-      .select("slot, rawg_id, game_name, background_image")
+      .select("slot, igdb_id, game_name, background_image")
       .eq("user_id", userId)
       .order("slot", { ascending: true }),
     supabase
       .from("game_activity")
       .select(
-        "id, rawg_id, game_name, background_image, played_at, note, started_on, playtime_hours, platform",
+        "id, igdb_id, game_name, background_image, played_at, note, started_on, playtime_hours, platform",
       )
       .eq("user_id", userId)
       .order("played_at", { ascending: false })
@@ -458,7 +458,7 @@ export async function getProfileDashboard(
     supabase
       .from("game_reviews")
       .select(
-        "id, rawg_id, game_name, background_image, body, rating, created_at, started_on, finished_on, is_replay, liked, playtime_hours, platform",
+        "id, igdb_id, game_name, background_image, body, rating, created_at, started_on, finished_on, is_replay, liked, playtime_hours, platform",
       )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
@@ -473,7 +473,7 @@ export async function getProfileDashboard(
       .gte("played_at", yearStart),
     supabase
       .from("game_backlog")
-      .select("id, rawg_id, game_name, background_image, note, created_at")
+      .select("id, igdb_id, game_name, background_image, note, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(5),
@@ -489,24 +489,24 @@ export async function getProfileDashboard(
   const activity = (actRes.data ?? []) as GameActivityRecord[];
   const reviews = (revRes.data ?? []) as GameReviewRecord[];
 
-  const ratingByRawgId = new Map<number, number>();
-  const likedByRawgId = new Map<number, boolean>();
+  const ratingByIgdbId = new Map<number, number>();
+  const likedByIgdbId = new Map<number, boolean>();
   for (const rev of reviews) {
     if (rev.liked) {
-      likedByRawgId.set(rev.rawg_id, true);
+      likedByIgdbId.set(rev.igdb_id, true);
     }
     if (rev.rating == null) continue;
     const n = Number(rev.rating);
     if (!Number.isFinite(n) || n <= 0) continue;
-    if (!ratingByRawgId.has(rev.rawg_id)) {
-      ratingByRawgId.set(rev.rawg_id, n);
+    if (!ratingByIgdbId.has(rev.igdb_id)) {
+      ratingByIgdbId.set(rev.igdb_id, n);
     }
   }
 
   const favorites: FavoriteGameRecord[] = favoritesRaw.map((f) => ({
     ...f,
-    review_rating: ratingByRawgId.get(f.rawg_id) ?? null,
-    review_liked: likedByRawgId.get(f.rawg_id) ?? false,
+    review_rating: ratingByIgdbId.get(f.igdb_id) ?? null,
+    review_liked: likedByIgdbId.get(f.igdb_id) ?? false,
   }));
 
   const stats: ProfileDashboardStats = {
@@ -583,7 +583,7 @@ export async function getGameReviewsPaged(
   const { data } = await supabase
     .from("game_reviews")
     .select(
-      "id, rawg_id, game_name, background_image, body, rating, created_at, started_on, finished_on, is_replay, liked, playtime_hours, platform",
+      "id, igdb_id, game_name, background_image, body, rating, created_at, started_on, finished_on, is_replay, liked, playtime_hours, platform",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false })

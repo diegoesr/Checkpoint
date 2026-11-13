@@ -8,9 +8,9 @@ import {
 import { publicProfilePath } from "@/lib/public-profile";
 import type { DiaryEntry } from "@/lib/supabase/profile-diary";
 import {
-  RAWG_COVER_QUALITY,
-  RAWG_COVER_SIZES_POSTER_COMPACT,
-} from "@/lib/rawg-image";
+  GAME_COVER_QUALITY,
+  GAME_COVER_SIZES_POSTER_COMPACT,
+} from "@/lib/game-image";
 
 function localYmd(iso: string): string {
   const d = new Date(iso);
@@ -129,8 +129,8 @@ export function ProfileDiaryTimeline({ entries }: { entries: DiaryEntry[] }) {
                         alt=""
                         fill
                         className="object-cover"
-                        sizes={RAWG_COVER_SIZES_POSTER_COMPACT}
-                        quality={RAWG_COVER_QUALITY}
+                        sizes={GAME_COVER_SIZES_POSTER_COMPACT}
+                        quality={GAME_COVER_QUALITY}
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center text-[10px] text-[#567]">
@@ -193,9 +193,9 @@ export function ProfileDiaryTimeline({ entries }: { entries: DiaryEntry[] }) {
                         <span className="font-semibold text-[#bcd]">Alguien</span>
                       )}{" "}
                       le gustó tu reseña de{" "}
-                      {e.rawgId != null ? (
+                      {e.igdbId != null ? (
                         <Link
-                          href={`/games/${e.rawgId}`}
+                          href={`/games/${e.igdbId}`}
                           className="font-semibold text-white hover:underline"
                         >
                           {e.gameName}
@@ -228,9 +228,9 @@ export function ProfileDiaryTimeline({ entries }: { entries: DiaryEntry[] }) {
                   {e.kind === "backlog" ? (
                     <>
                       <p className="mt-1 text-base font-semibold text-white">
-                        {e.rawgId != null ? (
+                        {e.igdbId != null ? (
                           <Link
-                            href={`/games/${e.rawgId}`}
+                            href={`/games/${e.igdbId}`}
                             className="text-white hover:text-emerald-400/90 hover:underline"
                           >
                             {e.gameName}

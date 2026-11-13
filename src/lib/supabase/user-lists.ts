@@ -14,7 +14,7 @@ export type UserListRecord = {
 export type UserListEntryRecord = {
   id: string;
   list_id: string;
-  rawg_id: number;
+  igdb_id: number;
   game_name: string;
   background_image: string | null;
   position: number;

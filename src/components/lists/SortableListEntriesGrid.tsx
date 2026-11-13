@@ -74,7 +74,7 @@ function SortableEntryTile({
       >
         <div className="relative aspect-2/3 w-full overflow-hidden bg-[#2a3138]">
           {entry.background_image ? (
-            // eslint-disable-next-line @next/next/no-img-element -- URLs RAWG variables
+            // eslint-disable-next-line @next/next/no-img-element -- URLs de carátulas variables
             <img
               src={entry.background_image}
               alt=""
@@ -85,7 +85,7 @@ function SortableEntryTile({
         </div>
       </div>
       <Link
-        href={`/games/${entry.rawg_id}`}
+        href={`/games/${entry.igdb_id}`}
         className="hidden px-2 py-2 text-center text-[11px] font-medium leading-tight text-[#c8d0d9] transition hover:text-[#40bcf4] sm:block"
       >
         {entry.game_name}

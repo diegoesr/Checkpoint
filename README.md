@@ -10,7 +10,7 @@ Red social para **videojuegos**: registra lo que juegas, reseñas con medias est
 
 ## ¿Qué hace el sitio?
 
-Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros jugadores**, **guardar juegos** (RAWG), **publicar reseñas y actividades**, **organizar listas personalizadas** y **ver noticias** agregadas por RSS. El nombre del producto en la interfaz es **Checkpoint**.
+Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros jugadores**, **guardar juegos** (IGDB), **publicar reseñas y actividades**, **organizar listas personalizadas** y **ver noticias** agregadas por RSS. El nombre del producto en la interfaz es **Checkpoint**.
 
 ---
 
@@ -26,7 +26,7 @@ Checkpoint permite a cada usuario **tener un perfil público**, **seguir a otros
 | **Backlog** | Lista de juegos pendientes (wishlist/backlog). |
 | **Listas** | Listas de usuario con entradas ordenables (drag & drop), collage de carátulas. |
 | **Amigos** | Seguir / seguidores, búsqueda de perfiles, página de amigos (móvil). |
-| **Descubrimiento** | Home con carrusel de juegos en tendencia (RAWG), `/games`, búsqueda. |
+| **Descubrimiento** | Home con carrusel de juegos en tendencia (IGDB), `/games`, búsqueda. |
 | **Noticias** | Home y `/news` con artículos desde feeds RSS configurables. |
 | **Notificaciones** | Avisos en navbar (p. ej. interacciones relevantes). |
 
@@ -56,7 +56,7 @@ En este proyecto el “backend” **no es un servidor aparte**: vive dentro de *
 | Capa | Tecnología | Rol |
 |------|------------|-----|
 | **Runtime** | Node.js (en Vercel u otro host) | Ejecuta `next build` / `next start`. |
-| **API HTTP** | **Route Handlers** (`src/app/api/...`) | P. ej. búsqueda de juegos proxy a RAWG. |
+| **API HTTP** | **Route Handlers** (`src/app/api/...`) | P. ej. búsqueda de juegos proxy a IGDB. |
 | **Lógica de mutación** | **Server Actions** (`"use server"`) | Formularios: perfil, reseñas, listas, amigos, etc. |
 | **Middleware** | **Next middleware** | Refresco de sesión Supabase en cada request relevante. |
 | **Datos y auth** | **Supabase** | Postgres, Auth, Storage, RLS (ver siguiente sección). |
@@ -81,11 +81,11 @@ Variables típicas: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
 | API / fuente | Para qué se usa |
 |--------------|-----------------|
-| **[RAWG API](https://rawg.io/apidocs)** | Metadatos de juegos: carátulas, nombres, búsqueda, tendencias. Clave: `RAWG_API_KEY` (solo servidor). |
+| **[IGDB API](https://api-docs.igdb.com)** | Metadatos de juegos: carátulas, nombres, búsqueda, tendencias. Credenciales de Twitch: `IGDB_CLIENT_ID` e `IGDB_CLIENT_SECRET` (solo servidor). |
 | **Feeds RSS** | Noticias gaming en home y `/news`. Orígenes configurables con `NEWS_RSS_FEEDS` (ver `src/lib/gaming-news-rss.ts`). |
 | **Supabase** | Auth REST, PostgREST vía cliente JS, Storage API. |
 
-Atribución: donde la API de RAWG lo exige, se muestra atribución en la UI.
+Atribución: se muestra «vía IGDB» junto a los datos de juegos.
 
 ---
 
@@ -112,7 +112,7 @@ flowchart TB
   end
 
   subgraph external [Externas]
-    RAWG[RAWG API]
+    IGDB[IGDB API]
     RSS[RSS feeds]
   end
 
@@ -122,13 +122,13 @@ flowchart TB
   Middleware --> Auth
   SA --> PG
   SA --> Storage
-  API --> RAWG
+  API --> IGDB
   RSC --> RSS
   SupaClient --> Auth
   SupaClient --> PG
 ```
 
-Flujo resumido: el usuario interactúa con páginas React; las mutaciones van a **Server Actions** o al cliente Supabase según el caso; el **middleware** mantiene la sesión; datos persistentes y auth están en **Supabase**; catálogo y noticias vienen de **RAWG** y **RSS**.
+Flujo resumido: el usuario interactúa con páginas React; las mutaciones van a **Server Actions** o al cliente Supabase según el caso; el **middleware** mantiene la sesión; datos persistentes y auth están en **Supabase**; catálogo y noticias vienen de **IGDB** y **RSS**.
 
 ---
 
@@ -148,7 +148,7 @@ Checkpoint/
 │   │   ├── profile/        # Área logueada (perfil, reseñas, backlog, diary, friends…)
 │   │   └── u/[slug]/       # Perfil público
 │   ├── components/         # UI por dominio (landing, profile, lists, auth, …)
-│   ├── lib/                # Cliente Supabase, RAWG, RSS, utilidades
+│   ├── lib/                # Cliente Supabase, IGDB, RSS, utilidades
 │   └── middleware.ts       # Sesión Supabase
 ├── supabase/migrations/    # Esquema SQL versionado (RLS, tablas, storage)
 ├── docs/screenshots/       # (Opcional) capturas para este README
@@ -165,7 +165,7 @@ Checkpoint/
 |----------|--------|
 | **Next.js App Router** | Una sola base para UI, API ligera y server actions; despliegue sencillo en Vercel. |
 | **Supabase** | Auth lista, Postgres con RLS, storage y panel sin montar backend propio desde cero. |
-| **RAWG** | Base de datos de juegos amplia (carátulas, metadatos) sin mantener catálogo propio. |
+| **IGDB** | Catálogo de juegos más completo y actualizado (carátulas oficiales, metadatos), gratuito incluso para uso comercial. |
 | **RSS + rss-parser** | Noticias desde medios que ya publican feeds, sin CMS propio. |
 | **Tailwind** | Iteración rápida de UI y responsive coherente con el estilo Letterboxd-like. |
 | **TypeScript** | Menos errores en datos de perfil, listas y acciones servidor. |
@@ -238,7 +238,7 @@ Checkpoint/
 ```bash
 npm install
 cp .env.example .env.local
-# Completa NEXT_PUBLIC_SUPABASE_*, RAWG_API_KEY, etc.
+# Completa NEXT_PUBLIC_SUPABASE_*, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET, etc.
 npm run dev
 ```
 

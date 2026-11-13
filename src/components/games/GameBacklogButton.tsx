@@ -4,15 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import {
   addGameToBacklogAction,
-  removeGameFromBacklogByRawgIdAction,
+  removeGameFromBacklogByIgdbIdAction,
 } from "@/app/profile/actions";
 
 type Props = {
-  rawgId: number;
+  igdbId: number;
   initialInBacklog: boolean;
 };
 
-export function GameBacklogButton({ rawgId, initialInBacklog }: Props) {
+export function GameBacklogButton({ igdbId, initialInBacklog }: Props) {
   const router = useRouter();
   const [inBacklog, setInBacklog] = useState(initialInBacklog);
   const [error, setError] = useState<string | null>(null);
@@ -26,14 +26,14 @@ export function GameBacklogButton({ rawgId, initialInBacklog }: Props) {
     setError(null);
     startTransition(async () => {
       if (inBacklog) {
-        const res = await removeGameFromBacklogByRawgIdAction(rawgId);
+        const res = await removeGameFromBacklogByIgdbIdAction(igdbId);
         if (!res.ok) {
           setError(res.error);
           return;
         }
         setInBacklog(false);
       } else {
-        const res = await addGameToBacklogAction(rawgId);
+        const res = await addGameToBacklogAction(igdbId);
         if (!res.ok) {
           setError(res.error);
           return;

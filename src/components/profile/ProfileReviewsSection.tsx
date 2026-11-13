@@ -9,10 +9,10 @@ import {
 } from "@/lib/profile-display";
 import type { GameReviewRecord } from "@/lib/supabase/profile-dashboard";
 import {
-  RAWG_COVER_QUALITY,
-  RAWG_COVER_SIZES_POSTER_COMPACT,
-  RAWG_COVER_SIZES_REVIEW_ROW,
-} from "@/lib/rawg-image";
+  GAME_COVER_QUALITY,
+  GAME_COVER_SIZES_POSTER_COMPACT,
+  GAME_COVER_SIZES_REVIEW_ROW,
+} from "@/lib/game-image";
 import { ReviewLikeButton } from "@/components/profile/ReviewLikeButton";
 
 const MOBILE_ACTIVITY_GRID_SIZES = "(max-width: 768px) 23vw, 120px";
@@ -128,7 +128,7 @@ export function ProfileReviewsSection({
                 {mobilePreview.map((r) => (
                   <li key={r.id} className="flex flex-col items-center">
                     <Link
-                      href={`/games/${r.rawg_id}`}
+                      href={`/games/${r.igdb_id}`}
                       className="block w-full"
                     >
                       <div className="relative aspect-[2/3] w-full overflow-hidden rounded-sm bg-[#1f252d] ring-1 ring-[#2f3642]">
@@ -137,7 +137,7 @@ export function ProfileReviewsSection({
                             src={r.background_image}
                             alt=""
                             fill
-                            quality={RAWG_COVER_QUALITY}
+                            quality={GAME_COVER_QUALITY}
                             className="object-cover"
                             sizes={MOBILE_ACTIVITY_GRID_SIZES}
                           />
@@ -192,7 +192,7 @@ export function ProfileReviewsSection({
                             {dayOfMonth}
                           </span>
                           <Link
-                            href={`/games/${r.rawg_id}`}
+                            href={`/games/${r.igdb_id}`}
                             className="relative block h-[5.5rem] w-11 shrink-0 overflow-hidden rounded bg-[#1f252d] ring-1 ring-[#2f3642] sm:h-24 sm:w-14"
                           >
                             {r.background_image ? (
@@ -200,9 +200,9 @@ export function ProfileReviewsSection({
                                 src={r.background_image}
                                 alt=""
                                 fill
-                                quality={RAWG_COVER_QUALITY}
+                                quality={GAME_COVER_QUALITY}
                                 className="object-cover"
-                                sizes={RAWG_COVER_SIZES_POSTER_COMPACT}
+                                sizes={GAME_COVER_SIZES_POSTER_COMPACT}
                               />
                             ) : (
                               <span className="flex size-full items-center justify-center text-[10px] text-[#567]">
@@ -220,7 +220,7 @@ export function ProfileReviewsSection({
                             </p>
                             <p className="mt-1 text-base font-semibold text-white">
                               <Link
-                                href={`/games/${r.rawg_id}`}
+                                href={`/games/${r.igdb_id}`}
                                 className="text-white hover:text-emerald-400/90 hover:underline"
                               >
                                 {r.game_name}
@@ -307,9 +307,9 @@ export function ProfileReviewsSection({
                     src={r.background_image}
                     alt=""
                     fill
-                    quality={RAWG_COVER_QUALITY}
+                    quality={GAME_COVER_QUALITY}
                     className="object-cover"
-                    sizes={RAWG_COVER_SIZES_REVIEW_ROW}
+                    sizes={GAME_COVER_SIZES_REVIEW_ROW}
                   />
                 ) : null}
               </div>

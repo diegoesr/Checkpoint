@@ -10,7 +10,7 @@ export type NavbarNotification =
       at: string;
       actor: FriendProfile;
       gameName: string;
-      rawgId: number;
+      igdbId: number;
     }
   | {
       id: string;
@@ -90,7 +90,7 @@ export async function getNavbarNotifications(
   const [reviewsRes, followRes] = await Promise.all([
     supabase
       .from("game_reviews")
-      .select("id, rawg_id, game_name")
+      .select("id, igdb_id, game_name")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(RECENT_REVIEWS_CAP),
@@ -106,7 +106,7 @@ export async function getNavbarNotifications(
     (reviewsRes.data ?? []).map((r) => [
       r.id as string,
       {
-        rawg_id: r.rawg_id as number,
+        igdb_id: r.igdb_id as number,
         game_name: r.game_name as string,
       },
     ]),
@@ -216,7 +216,7 @@ export async function getNavbarNotifications(
         at: t.at,
         actor,
         gameName: rev.game_name,
-        rawgId: rev.rawg_id,
+        igdbId: rev.igdb_id,
       });
     } else {
       out.push({

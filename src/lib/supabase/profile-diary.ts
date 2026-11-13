@@ -19,7 +19,7 @@ export type DiaryEntry = {
   kind: DiaryKind;
   at: string;
   gameName?: string;
-  rawgId?: number;
+  igdbId?: number;
   backgroundImage?: string | null;
   reviewRating?: number | null;
   reviewBody?: string | null;
@@ -33,7 +33,7 @@ export type DiaryEntry = {
 export type ProfileDiaryExtras = {
   backlog: Array<{
     id: string;
-    rawg_id: number;
+    igdb_id: number;
     game_name: string;
     background_image: string | null;
     created_at: string;
@@ -46,7 +46,7 @@ export type ProfileDiaryExtras = {
     created_at: string;
     liker_id: string;
     review_id: string;
-    rawg_id: number;
+    igdb_id: number;
     game_name: string;
     background_image: string | null;
   }>;
@@ -95,7 +95,7 @@ export async function getProfileDiaryExtras(
   const [backlogRes, foutRes, finRes, myReviewsRes] = await Promise.all([
     supabase
       .from("game_backlog")
-      .select("id, rawg_id, game_name, background_image, created_at")
+      .select("id, igdb_id, game_name, background_image, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(100),
@@ -113,7 +113,7 @@ export async function getProfileDiaryExtras(
       .limit(100),
     supabase
       .from("game_reviews")
-      .select("id, rawg_id, game_name, background_image")
+      .select("id, igdb_id, game_name, background_image")
       .eq("user_id", userId),
   ]);
 
@@ -133,7 +133,7 @@ export async function getProfileDiaryExtras(
   const reviewRows =
     (myReviewsRes.data ?? []) as Array<{
       id: string;
-      rawg_id: number;
+      igdb_id: number;
       game_name: string;
       background_image: string | null;
     }>;
@@ -161,7 +161,7 @@ export async function getProfileDiaryExtras(
           created_at: row.created_at as string,
           liker_id: row.user_id as string,
           review_id: row.review_id as string,
-          rawg_id: rev.rawg_id,
+          igdb_id: rev.igdb_id,
           game_name: rev.game_name,
           background_image: rev.background_image,
         });
@@ -183,7 +183,7 @@ export function buildDiaryEntries(
       id: `activity-${a.id}`,
       kind: "activity",
       at: a.played_at,
-      rawgId: a.rawg_id,
+      igdbId: a.igdb_id,
       gameName: a.game_name,
       backgroundImage: a.background_image,
       activityHoursLabel: formatPlaytimeHours(a.playtime_hours),
@@ -196,7 +196,7 @@ export function buildDiaryEntries(
       id: `review-${r.id}`,
       kind: "review",
       at: r.created_at,
-      rawgId: r.rawg_id,
+      igdbId: r.igdb_id,
       gameName: r.game_name,
       backgroundImage: r.background_image,
       reviewRating: r.rating,
@@ -212,7 +212,7 @@ export function buildDiaryEntries(
       kind: "backlog",
       at: w.created_at,
       gameName: w.game_name,
-      rawgId: w.rawg_id,
+      igdbId: w.igdb_id,
       backgroundImage: w.background_image,
     });
   }
@@ -261,7 +261,7 @@ export async function hydrateDiaryFollowEntries(
       kind: "review_liked",
       at: row.created_at,
       gameName: row.game_name,
-      rawgId: row.rawg_id,
+      igdbId: row.igdb_id,
       backgroundImage: row.background_image,
       friend: profileMap.get(row.liker_id),
     });

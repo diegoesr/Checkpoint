@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { UserListWithPreview } from "@/lib/supabase/user-lists";
-import { RAWG_COVER_QUALITY } from "@/lib/rawg-image";
+import { GAME_COVER_QUALITY } from "@/lib/game-image";
 
 const PREVIEW_LISTS = 4;
 const STACK_SLOTS = 5;
@@ -51,7 +51,7 @@ function ListPosterStack({
               fill
               className="object-cover"
               sizes="96px"
-              quality={RAWG_COVER_QUALITY}
+              quality={GAME_COVER_QUALITY}
               priority={preloadCovers && i < 3}
             />
           ) : (

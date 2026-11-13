@@ -170,9 +170,9 @@ export function ProfileDiarySidebar({
                       {dayOfMonth(e.at)}
                     </span>
                     <div className="min-w-0 flex-1">
-                      {e.rawgId != null ? (
+                      {e.igdbId != null ? (
                         <Link
-                          href={`/games/${e.rawgId}`}
+                          href={`/games/${e.igdbId}`}
                           className="text-[#40bcf4] transition hover:text-[#5ccfff]"
                         >
                           <span className="line-clamp-2">{e.gameName}</span>

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Navbar } from "@/components/landing/Navbar";
-import { searchGames } from "@/lib/rawg";
+import { isIgdbConfigured, searchGames } from "@/lib/igdb";
 
 type Props = { searchParams: Promise<{ q?: string }> };
 
@@ -11,7 +11,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const data = query ? await searchGames(query, 1, 20) : null;
   const results = data?.results ?? [];
   const count = data?.count ?? 0;
-  const hasKey = Boolean(process.env.RAWG_API_KEY);
+  const hasKey = isIgdbConfigured();
 
   return (
     <div className="min-h-full bg-black font-sans text-white">
@@ -19,7 +19,7 @@ export default async function SearchPage({ searchParams }: Props) {
       <main className="mx-auto max-w-3xl px-6 pb-24 pt-40 sm:pt-44">
         <h1 className="text-3xl font-semibold">Buscar juegos</h1>
         <p className="mt-2 text-sm text-white/55">
-          Resultados vía RAWG. Busca desde la página{" "}
+          Resultados vía IGDB. Busca desde la página{" "}
           <Link href="/games" className="text-cyan-400 hover:text-cyan-300">
             Juegos
           </Link>{" "}
@@ -29,7 +29,8 @@ export default async function SearchPage({ searchParams }: Props) {
 
         {!hasKey ? (
           <p className="mt-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200/90">
-            Falta <code className="text-amber-100">RAWG_API_KEY</code> en{" "}
+            Falta <code className="text-amber-100">IGDB_CLIENT_ID</code> e{" "}
+            <code className="text-amber-100">IGDB_CLIENT_SECRET</code> en{" "}
             <code className="text-amber-100">.env.local</code> para obtener
             resultados.
           </p>
@@ -47,12 +48,12 @@ export default async function SearchPage({ searchParams }: Props) {
                     href={`/games/${game.id}`}
                     className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-cyan-500/35 hover:bg-white/[0.07]"
                   >
-                    <div className="relative size-20 shrink-0 overflow-hidden rounded-lg bg-white/10">
+                    <div className="relative h-20 w-[60px] shrink-0 overflow-hidden rounded-lg bg-white/10">
                       {game.background_image ? (
                         <Image
                           src={game.background_image}
                           alt=""
-                          width={80}
+                          width={60}
                           height={80}
                           className="size-full object-cover"
                         />
@@ -69,9 +70,9 @@ export default async function SearchPage({ searchParams }: Props) {
                           {game.released}
                         </p>
                       ) : null}
-                      {game.metacritic != null ? (
+                      {game.rating != null ? (
                         <p className="mt-1 text-xs text-cyan-400/80">
-                          Metacritic {game.metacritic}
+                          Crítica {game.rating}
                         </p>
                       ) : null}
                     </div>

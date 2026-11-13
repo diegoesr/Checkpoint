@@ -12,7 +12,7 @@ import type {
   UserListEntryRecord,
   UserListRecord,
 } from "@/lib/supabase/user-lists";
-import type { RawgSearchHit } from "@/lib/rawg";
+import type { GameSearchHit } from "@/lib/igdb";
 
 type Props = {
   list: UserListRecord;
@@ -24,7 +24,7 @@ type SearchState = { ok: false; error: string } | null;
 export function ListDetailEditor({ list, entries }: Props) {
   const router = useRouter();
   const [q, setQ] = useState("");
-  const [hits, setHits] = useState<RawgSearchHit[]>([]);
+  const [hits, setHits] = useState<GameSearchHit[]>([]);
   const [searching, setSearching] = useState(false);
   const [pendingAdd, startAdd] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
@@ -53,17 +53,17 @@ export function ListDetailEditor({ list, entries }: Props) {
         setHits([]);
         return;
       }
-      const data = (await res.json()) as { results?: RawgSearchHit[] };
+      const data = (await res.json()) as { results?: GameSearchHit[] };
       setHits(data.results ?? []);
     } finally {
       setSearching(false);
     }
   }
 
-  function addGame(rawgId: number) {
+  function addGame(igdbId: number) {
     startAdd(async () => {
       setMsg(null);
-      const res = await addGameToUserListAction(list.id, rawgId);
+      const res = await addGameToUserListAction(list.id, igdbId);
       if (!res.ok) {
         setMsg(res.error);
         return;

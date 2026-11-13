@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, Suspense } from "react";
 import { Press_Start_2P } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import { getFollowingForUser } from "@/lib/supabase/friends";
@@ -15,6 +15,7 @@ import { NavbarFriendsSection } from "@/components/landing/NavbarFriendsSection"
 import { NavbarGuestMobileMenu } from "@/components/landing/NavbarGuestMobileMenu";
 import { NavbarNotificationsMenu } from "@/components/landing/NavbarNotificationsMenu";
 import { getNavbarNotifications } from "@/lib/supabase/navbar-notifications";
+import { NavbarSkeleton } from "@/components/skeletons/Skeleton";
 
 const logoFont = Press_Start_2P({
   weight: "400",
@@ -42,7 +43,7 @@ const authNavItems: NavItem[] = [
   { href: "/news", label: "Noticias" },
 ];
 
-export async function Navbar() {
+async function NavbarContent() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -182,5 +183,18 @@ export async function Navbar() {
         </nav>
       </div>
     </header>
+  );
+}
+
+/**
+ * El Navbar consulta sesión, amigos y notificaciones. Se envuelve en Suspense
+ * para que esas consultas no bloqueen el render del contenido de la página:
+ * el placeholder ocupa el mismo espacio (header absoluto) y se reemplaza al llegar.
+ */
+export function Navbar() {
+  return (
+    <Suspense fallback={<NavbarSkeleton />}>
+      <NavbarContent />
+    </Suspense>
   );
 }
