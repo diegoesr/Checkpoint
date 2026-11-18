@@ -15,10 +15,11 @@ export type GamingNewsItem = {
 /**
  * Fuentes por defecto: verticales de videojuegos (menos ruido que el RSS general).
  * Sustituye con `NEWS_RSS_FEEDS` en .env (URLs separadas por coma).
+ * (VideoGamesChronicle se quitó: bloquea con 403 que otros sitios muestren sus
+ * imágenes, así que ninguna de sus noticias pasaría el filtro de imagen.)
  */
 const DEFAULT_RSS_FEEDS = [
   "https://www.polygon.com/rss/gaming/index.xml",
-  "https://www.videogameschronicle.com/feed/",
   "https://www.eurogamer.net/feed",
   "https://www.pcgamer.com/rss/",
   "https://kotaku.com/rss",
@@ -177,6 +178,57 @@ function extractImageUrl(item: Item): string | null {
   return null;
 }
 
+const IMAGE_CHECK_TIMEOUT_MS = 4000;
+/** Imágenes que se comprueban a la vez (como mínimo, las que hacen falta + margen). */
+const IMAGE_CHECK_MIN_BATCH = 12;
+
+/**
+ * Comprueba que la imagen se puede cargar desde fuera del medio: algunos bloquean
+ * el hotlinking (403) o devuelven HTML en lugar de una imagen. Solo pide el
+ * primer KB (Range) para no descargar la imagen completa.
+ */
+async function isImageReachable(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Range: "bytes=0-1023",
+        Accept: "image/avif,image/webp,image/*,*/*;q=0.8",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(IMAGE_CHECK_TIMEOUT_MS),
+    });
+    const type = res.headers.get("content-type") ?? "";
+    // Liberar la conexión sin leer el resto del cuerpo.
+    await res.body?.cancel().catch(() => {});
+    return res.ok && type.startsWith("image/");
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Recorre las noticias (ya ordenadas) y se queda con las primeras `limit` cuya
+ * imagen carga. Verifica en paralelo por lotes y se detiene en cuanto tiene suficientes.
+ */
+async function keepWithWorkingImage<T extends { imageUrl: string | null }>(
+  items: T[],
+  limit: number,
+): Promise<T[]> {
+  const kept: T[] = [];
+  const candidates = items.filter((item) => item.imageUrl);
+  const batchSize = Math.max(IMAGE_CHECK_MIN_BATCH, limit + 6);
+  for (let i = 0; i < candidates.length && kept.length < limit; i += batchSize) {
+    const batch = candidates.slice(i, i + batchSize);
+    const results = await Promise.all(batch.map((item) => isImageReachable(item.imageUrl as string)));
+    batch.forEach((item, index) => {
+      if (results[index] && kept.length < limit) kept.push(item);
+    });
+  }
+  return kept;
+}
+
 async function aggregateGamingNews(limit: number): Promise<GamingNewsItem[]> {
   const feeds = getFeedUrls();
   const parser = new Parser({
@@ -235,7 +287,9 @@ async function aggregateGamingNews(limit: number): Promise<GamingNewsItem[]> {
 
   unique.sort((a, b) => b._t - a._t);
 
-  return unique.slice(0, limit).map(({ _t, ...rest }) => rest);
+  // Solo noticias con imagen previa que de verdad carga.
+  const withImage = await keepWithWorkingImage(unique, limit);
+  return withImage.map(({ _t, ...rest }) => rest);
 }
 
 /**
@@ -244,7 +298,7 @@ async function aggregateGamingNews(limit: number): Promise<GamingNewsItem[]> {
 export async function getGamingNewsFromRss(limit: number): Promise<GamingNewsItem[]> {
   const runner = unstable_cache(
     async () => aggregateGamingNews(limit),
-    ["gaming-news-rss-v2-strict", String(limit)],
+    ["gaming-news-rss-v4-images", String(limit)],
     { revalidate: 600 },
   );
   return runner();
